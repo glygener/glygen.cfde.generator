@@ -1,0 +1,2 @@
+id	name	description	synonyms
+OBI:0200057	replicate analysis	A replicate analysis is a data transformation in which data from replicates are combined, e.g. through descriptive statistics calculations, and the results might be utilized for a variety of purposes, like assessing reproducibility, identifying outliers, normalizing, etc.	[]
