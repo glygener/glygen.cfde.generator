@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.glygen.cfde.generator.om.DCC;
+import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 
 public class PropertiesProcessor
@@ -89,8 +90,13 @@ public class PropertiesProcessor
         return this.getProject("glygen");
     }
 
-    public String getNamespace() throws IOException
+    public Namespace getNamespace() throws IOException
     {
-        return this.getPropertyString("id_namespace", true);
+        Namespace t_nameSpace = new Namespace();
+        t_nameSpace.setId(this.getPropertyString("namespace.id", true));
+        t_nameSpace.setAbbr(this.getPropertyString("namespace.abbreviation", true));
+        t_nameSpace.setName(this.getPropertyString("namespace.name", true));
+        t_nameSpace.setDescription(this.getPropertyString("namespace.description", true));
+        return t_nameSpace;
     }
 }

@@ -1,12 +1,8 @@
 package org.glygen.cfde.generator.om;
 
-import java.util.Date;
-
-public class Project
+public class Namespace
 {
     private String m_id = null;
-    private String m_persistent = null;
-    private Date m_creationTime = null;
     private String m_abbr = null;
     private String m_name = null;
     private String m_description = null;
@@ -19,26 +15,6 @@ public class Project
     public void setId(String a_id)
     {
         this.m_id = a_id;
-    }
-
-    public String getPersistent()
-    {
-        return this.m_persistent;
-    }
-
-    public void setPersistent(String a_persistent)
-    {
-        this.m_persistent = a_persistent;
-    }
-
-    public Date getCreationTime()
-    {
-        return this.m_creationTime;
-    }
-
-    public void setCreationTime(Date a_creationTime)
-    {
-        this.m_creationTime = a_creationTime;
     }
 
     public String getAbbr()

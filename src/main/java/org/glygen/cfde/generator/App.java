@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.glygen.cfde.generator.om.DCC;
+import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 import org.glygen.cfde.generator.util.CFDEGenerator;
 import org.glygen.cfde.generator.util.PropertiesProcessor;
@@ -34,7 +35,7 @@ public class App
         DCC t_dcc = null;
         Project t_projectMaster = null;
         Project t_projectGlyGen = null;
-        String t_namespace = null;
+        Namespace t_namespace = null;
         try
         {
             Properties t_properties = App.loadProperties(t_arguments.getPropertiesFile());
