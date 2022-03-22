@@ -2,8 +2,22 @@ package org.glygen.cfde.generator.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.glygen.cfde.generator.om.DCC;
+import org.glygen.cfde.generator.om.DataFileType;
+import org.glygen.cfde.generator.om.FileConfig;
 import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 import org.glygen.cfde.generator.tsv.BiosampleDiseaseFile;
@@ -38,6 +52,10 @@ public class CFDEGenerator
     private Project m_projectMaster = null;
     private Project m_projectGlyGen = null;
     private Namespace m_namespace = null;
+
+    private String m_outputFolder = null;
+    private String m_mappingFolder = null;
+    private String m_downloadFolder = null;
 
     // core files
     private DCCFile m_dccFile = null;
@@ -143,14 +161,21 @@ public class CFDEGenerator
         this.m_subjectSubstanceFile.closeFile();
     }
 
-    public void createTSV(String a_configFile, String a_outputFolder, String a_mappingFolder)
-            throws IOException
+    public void createTSV(List<FileConfig> a_configFiles, String a_outputFolder,
+            String a_mappingFolder) throws IOException
     {
+        this.m_outputFolder = a_outputFolder;
+        this.m_mappingFolder = a_mappingFolder;
         this.createSubFolders(a_outputFolder);
         this.openFiles(a_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_TSV);
 
+        // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
-
+        // process files
+        for (FileConfig t_fileConfig : a_configFiles)
+        {
+            this.processFile(t_fileConfig);
+        }
         this.closeFiles();
     }
 
@@ -170,14 +195,14 @@ public class CFDEGenerator
     private void createSubFolders(String a_outputFolder) throws IOException
     {
         // download folder
-        File t_file = new File(
-                a_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_DOWNLOAD);
+        this.m_downloadFolder = a_outputFolder + File.separator
+                + CFDEGenerator.FOLDER_NAME_DOWNLOAD;
+        File t_file = new File(this.m_downloadFolder);
         if (!t_file.exists())
         {
             if (!t_file.mkdirs())
             {
-                throw new IOException("Failed to create download folder: " + a_outputFolder
-                        + File.separator + CFDEGenerator.FOLDER_NAME_DOWNLOAD);
+                throw new IOException("Failed to create download folder: " + this.m_downloadFolder);
             }
         }
         // tsv folder
@@ -190,6 +215,52 @@ public class CFDEGenerator
                         + File.separator + FOLDER_NAME_TSV);
             }
         }
+    }
+
+    private void processFile(FileConfig a_fileConfig)
+    {
+        // download the file
+        Downloader t_downloader = new Downloader();
+        String t_localFileName = this.createLocalFileName(a_fileConfig.getFileUrl());
+        t_downloader.downloadFile(a_fileConfig.getFileUrl(),
+                this.m_downloadFolder + File.separator + t_localFileName);
+        // decide how to process the file
+        if (a_fileConfig.getType().equals(DataFileType.GLYGEN_DATA))
+        {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            InputStream is = Files.newInputStream(Paths.get("file.txt"));
+            DigestInputStream dis = new DigestInputStream(is, md);
+            while (dis.read() != -1)
+            {
+            }
+            byte[] digest = md.digest();
+            String signature = new BigInteger(1, digest).toString(16);
+            // https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
+            this.processGlyGenDataFile(t_localFileName, a_fileConfig);
+        }
+        else
+        {
+            throw new IOException(
+                    "Unable to process files of type: " + a_fileConfig.getType().getKey());
+        }
+    }
+
+    private String createLocalFileName(String a_fileUrl) throws MalformedURLException
+    {
+        // get the file name from the URL
+        URL t_url = new URL(a_fileUrl);
+        String t_fileName = FilenameUtils.getName(t_url.getPath());
+        SimpleDateFormat t_formatter = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss.SSS");
+        Date t_currentTime = new Date(System.currentTimeMillis());
+        String t_timeStamp = t_formatter.format(t_currentTime);
+        return t_timeStamp + "-" + t_fileName;
+    }
+
+    private void processGlyGenDataFile(String a_localFileName, FileConfig a_fileConfig)
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

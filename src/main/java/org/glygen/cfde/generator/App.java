@@ -3,6 +3,8 @@ package org.glygen.cfde.generator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,9 +15,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.glygen.cfde.generator.om.DCC;
+import org.glygen.cfde.generator.om.FileConfig;
 import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 import org.glygen.cfde.generator.util.CFDEGenerator;
+import org.glygen.cfde.generator.util.ConfigFileParser;
 import org.glygen.cfde.generator.util.PropertiesProcessor;
 
 public class App
@@ -59,12 +63,25 @@ public class App
             App.printComandParameter(t_options);
             return;
         }
+        // load the config file
+        List<FileConfig> t_fileConfigs = new ArrayList<>();
+        try
+        {
+            ConfigFileParser t_parser = new ConfigFileParser();
+            t_fileConfigs = t_parser.loadConfigFile(t_arguments.getConfigFile());
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            App.printComandParameter(t_options);
+            return;
+        }
         // generate the TSV files in the output folder
         try
         {
             CFDEGenerator t_generator = new CFDEGenerator(t_dcc, t_projectMaster, t_projectGlyGen,
                     t_namespace);
-            t_generator.createTSV(t_arguments.getConfigFile(), t_arguments.getOutputFolder(),
+            t_generator.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
         }
         catch (Exception e)

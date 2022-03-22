@@ -1,6 +1,8 @@
 package org.glygen.cfde.generator.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -62,7 +64,7 @@ public class Downloader
     }
 
     /**
-     * Download a web page.
+     * Download a file from the web
      *
      * @param a_url
      *            URL of the web page to download
@@ -70,7 +72,7 @@ public class Downloader
      * @throws IOException
      *             thrown if the download fails
      */
-    public byte[] downloadImage(String a_url) throws IOException
+    public byte[] downloadFile(String a_url) throws IOException
     {
         // get request
         HttpGet t_httpGet = new HttpGet(a_url);
@@ -94,4 +96,36 @@ public class Downloader
         return t_bytes;
     }
 
+    /**
+     * Download a file from the web and store in the local file system.
+     *
+     * @param a_url
+     *            URL of the web page to download
+     * @param a_fileNamePath
+     *            Path to the file to store the content in
+     * @return Content of the page
+     * @throws IOException
+     *             thrown if the download fails
+     */
+    public void downloadFile(String a_url, String a_fileNamePath) throws IOException
+    {
+        // get request
+        HttpGet t_httpGet = new HttpGet(a_url);
+        // perform request and get response
+        CloseableHttpResponse t_response = this.m_httpclient.execute(t_httpGet);
+        HttpEntity t_entity = t_response.getEntity();
+        if (t_response.getStatusLine().getStatusCode() >= 400)
+        {
+            throw new IOException("Received HTTP code ("
+                    + Integer.toString(t_response.getStatusLine().getStatusCode()) + ") for URL: "
+                    + a_url);
+        }
+        // get the page content
+        FileOutputStream t_stream = new FileOutputStream(new File(a_fileNamePath));
+        IOUtils.copy(t_entity.getContent(), t_stream);
+        t_stream.close();
+        // clean the request
+        EntityUtils.consume(t_entity);
+        t_response.close();
+    }
 }
