@@ -2,14 +2,8 @@ package org.glygen.cfde.generator.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -186,8 +180,8 @@ public class CFDEGenerator
         // namespace table
         this.m_idNamespaceFile.write(this.m_namespace);
         // create the root and glygen project
-        this.m_projectFile.write(m_projectMaster);
-        this.m_projectFile.write(m_projectGlyGen);
+        this.m_projectFile.write(this.m_projectMaster);
+        this.m_projectFile.write(this.m_projectGlyGen);
         // linking them
         this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectGlyGen);
     }
@@ -227,16 +221,7 @@ public class CFDEGenerator
         // decide how to process the file
         if (a_fileConfig.getType().equals(DataFileType.GLYGEN_DATA))
         {
-            MessageDigest md = MessageDigest.getInstance("MD5");
 
-            InputStream is = Files.newInputStream(Paths.get("file.txt"));
-            DigestInputStream dis = new DigestInputStream(is, md);
-            while (dis.read() != -1)
-            {
-            }
-            byte[] digest = md.digest();
-            String signature = new BigInteger(1, digest).toString(16);
-            // https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
             this.processGlyGenDataFile(t_localFileName, a_fileConfig);
         }
         else
