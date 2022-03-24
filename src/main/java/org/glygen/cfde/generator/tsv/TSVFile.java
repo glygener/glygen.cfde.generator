@@ -55,4 +55,21 @@ public abstract class TSVFile
         return t_formatter.format(a_creationTime);
     }
 
+    protected String addInteger(Integer a_integer)
+    {
+        if (a_integer == null)
+        {
+            return "";
+        }
+        return a_integer.toString();
+    }
+
+    protected String addLong(Long a_long)
+    {
+        if (a_long == null)
+        {
+            return "";
+        }
+        return a_long.toString();
+    }
 }

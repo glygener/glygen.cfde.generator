@@ -1,13 +1,13 @@
-package org.glygen.cfde.generator.om;
+package org.glygen.cfde.generator.csv;
 
-public enum DataFileType
+public enum MetadataType
 {
-    GLYGEN_PROTEIN_DATA("glygen_protein_data"), GLYGEN_GLYCAN_DATA("glygen_glycan_data");
+    COLUMN("column"), STATIC("static"), MAPPING("file");
 
     private String m_key;
 
     /** Private constructor, see the forName methods for external use. */
-    private DataFileType(String a_key)
+    private MetadataType(String a_key)
     {
         this.m_key = a_key;
     }
@@ -20,9 +20,9 @@ public enum DataFileType
     /**
      * Returns the appropriate object instance for the given key.
      */
-    public static DataFileType forString(String a_key)
+    public static MetadataType forString(String a_key)
     {
-        for (DataFileType a : DataFileType.values())
+        for (MetadataType a : MetadataType.values())
         {
             if (a_key.equalsIgnoreCase(a.m_key))
             {
