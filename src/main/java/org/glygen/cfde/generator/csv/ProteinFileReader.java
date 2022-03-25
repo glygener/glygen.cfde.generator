@@ -14,7 +14,7 @@ import com.opencsv.CSVReader;
 
 public class ProteinFileReader
 {
-    public List<Protein> loadConfigFile(String a_csvFile, FileConfig a_config) throws IOException
+    public List<Protein> loadFile(String a_csvFile, FileConfig a_config) throws IOException
     {
         // handle the columns
 

@@ -58,7 +58,7 @@ public class MetadataHandler
 
     public Integer getPosition()
     {
-        return m_position;
+        return this.m_position;
     }
 
     public void setPosition(Integer a_position)
@@ -190,5 +190,47 @@ public class MetadataHandler
             t_position++;
         }
         throw new IOException("Unable to find column heading: " + a_columnName);
+    }
+
+    public String processRow(String[] a_row, Integer a_lineNumber) throws IOException
+    {
+        if (this.m_type.equals(MetadataType.STATIC))
+        {
+            return this.m_staticInformation;
+        }
+        else if (this.m_type.equals(MetadataType.COLUMN))
+        {
+            if (a_row.length > this.m_position)
+            {
+                return a_row[this.m_position];
+            }
+            else
+            {
+                throw new IOException(
+                        "Line " + a_lineNumber.toString() + " does not have column number "
+                                + this.m_position.toString() + " (" + this.m_columnName + ")");
+            }
+        }
+        else if (this.m_type.equals(MetadataType.MAPPING))
+        {
+            if (a_row.length > this.m_position)
+            {
+                String t_key = a_row[this.m_position];
+                String t_value = this.m_dictionary.get(t_key);
+                if (t_value == null)
+                {
+                    throw new IOException("Unable to find " + t_key + " from column "
+                            + this.m_columnName + " in mapping file.");
+                }
+                return t_value;
+            }
+            else
+            {
+                throw new IOException(
+                        "Line " + a_lineNumber.toString() + " does not have column number "
+                                + this.m_position.toString() + " (" + this.m_columnName + ")");
+            }
+        }
+        throw new IOException("Can not process metadata type: " + this.m_type.getKey());
     }
 }
