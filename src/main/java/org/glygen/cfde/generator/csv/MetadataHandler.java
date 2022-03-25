@@ -72,7 +72,7 @@ public class MetadataHandler
         MetadataHandler t_handler = new MetadataHandler();
         if (a_string == null)
         {
-            return null;
+            throw new IOException("Column string can not be null");
         }
         else if (a_string.startsWith("column:"))
         {
@@ -108,6 +108,10 @@ public class MetadataHandler
             HashMap<String, String> t_mapping = MetadataHandler.loadMappingFile(a_mappingFolder,
                     t_part.substring(t_splitPosition + 1));
             t_handler.setDictionary(t_mapping);
+        }
+        else
+        {
+            throw new IOException("Unknown column string type: " + a_string);
         }
         return t_handler;
     }

@@ -2,11 +2,10 @@ package org.glygen.cfde.generator.csv;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.glygen.cfde.generator.om.DataFileType;
 import org.glygen.cfde.generator.om.FileConfig;
 import org.glygen.cfde.generator.om.Protein;
 
@@ -14,133 +13,154 @@ import com.opencsv.CSVReader;
 
 public class ProteinFileReader
 {
-    public List<Protein> loadFile(String a_csvFile, FileConfig a_config) throws IOException
-    {
-        // handle the columns
+    private MetadataHandler m_handlerProtein = null;
+    private MetadataHandler m_handlerGene = null;
+    private MetadataHandler m_handlerGlycan = null;
+    private MetadataHandler m_handlerDisease = null;
+    private MetadataHandler m_handlerAnatomy = null;
+    private MetadataHandler m_handlerSpecies = null;
 
-        HashMap<String, Protein> t_result = new HashMap<>();
+    private HashMap<String, Protein> m_proteinMap = new HashMap<>();
+
+    public List<Protein> loadFile(String a_csvFile, FileConfig a_config, String a_mappingFolder)
+            throws IOException
+    {
         Integer t_rowCounter = 1;
         try
         {
             // Create an object of filereader
             FileReader t_fileReader = new FileReader(a_csvFile);
-
             // create csvReader object passing
             CSVReader t_csvReader = new CSVReader(t_fileReader);
             // that should be the table heading
             String[] t_nextRecord = t_csvReader.readNext();
-
-            this.testHeadline(t_nextRecord);
-
+            // handle the columns
+            this.createHandler(a_config, t_nextRecord, a_mappingFolder);
             // read data line by line
             while ((t_nextRecord = t_csvReader.readNext()) != null)
             {
                 t_rowCounter++;
-                FileConfig t_fileConfig = this.parseRow(t_nextRecord, t_rowCounter);
-                if (t_fileConfig != null)
-                {
-                    t_result.add(t_fileConfig);
-                }
+                this.parseRow(t_nextRecord, t_rowCounter);
             }
             t_csvReader.close();
         }
         catch (Exception e)
         {
-            throw new IOException("Error parsing config file (row " + t_rowCounter.toString()
-                    + "): " + e.getMessage());
+            throw new IOException(
+                    "Error parsing file (row " + t_rowCounter.toString() + "): " + e.getMessage());
         }
-        return t_result;
+        List<Protein> t_finalList = new ArrayList<>();
+        for (Protein t_protein : this.m_proteinMap.values())
+        {
+            t_finalList.add(t_protein);
+        }
+        return t_finalList;
     }
 
-    private FileConfig parseRow(String[] a_row, Integer a_rowCounter) throws IOException
+    private void createHandler(FileConfig a_config, String[] a_nextRecord, String a_mappingFolder)
+            throws IOException
     {
-        FileConfig t_fileConfig = new FileConfig();
-        // generation_type
-        String t_cellValue = this.getCell(a_row, 0);
-        DataFileType t_type = DataFileType.forString(t_cellValue);
-        if (t_type == null)
+        // protein information
+        if (a_config.getProteinColumn() == null)
         {
-            throw new IOException("Unknown data file type in row " + a_rowCounter.toString() + ": "
-                    + t_cellValue);
+            throw new IOException("Protein type files need to have a protein column definition: "
+                    + a_config.getFileUrl());
         }
-        t_fileConfig.setType(t_type);
-        // file_url
-        t_cellValue = this.getCell(a_row, 1);
-        if (t_cellValue == null)
+        this.m_handlerProtein = MetadataHandler.fromString(a_config.getProteinColumn(),
+                a_nextRecord, a_mappingFolder);
+        // gene information
+        if (a_config.getGeneColumn() == null)
         {
-            throw new IOException("Missing file url in row " + a_rowCounter.toString());
+            throw new IOException("Protein type files need to have a gene column definition: "
+                    + a_config.getFileUrl());
         }
-        t_fileConfig.setFileUrl(t_cellValue);
-        // bco_url
-        t_cellValue = this.getCell(a_row, 2);
-        t_fileConfig.setBcoUrl(t_cellValue);
-        // local_id
-        t_cellValue = this.getCell(a_row, 3);
-        if (t_cellValue == null)
+        this.m_handlerGene = MetadataHandler.fromString(a_config.getGeneColumn(), a_nextRecord,
+                a_mappingFolder);
+        // glycan information
+        if (a_config.getGlycanColumn() != null)
         {
-            throw new IOException("Missing local ID in row " + a_rowCounter.toString());
+            this.m_handlerGlycan = MetadataHandler.fromString(a_config.getGlycanColumn(),
+                    a_nextRecord, a_mappingFolder);
         }
-        t_fileConfig.setLocalId(t_cellValue);
-        // persistent_id
-        t_cellValue = this.getCell(a_row, 4);
-        if (t_cellValue == null)
+        // disease information
+        if (a_config.getDiseaseColumn() != null)
         {
-            throw new IOException("Missing persistent ID in row " + a_rowCounter.toString());
+            this.m_handlerDisease = MetadataHandler.fromString(a_config.getDiseaseColumn(),
+                    a_nextRecord, a_mappingFolder);
         }
-        t_fileConfig.setPersitentId(t_cellValue);
-        // creation_time
-        t_cellValue = this.getCell(a_row, 5);
-        if (t_cellValue == null)
-        {
-            throw new IOException("Missing creation time in row " + a_rowCounter.toString());
-        }
-        try
-        {
-            Date t_date = this.stringToDate(t_cellValue);
-            t_fileConfig.setCreationTime(t_date);
-        }
-        catch (Exception e)
-        {
-            throw new IOException(
-                    "Date format incorrect (MM/dd/yyy) in row " + a_rowCounter.toString());
-        }
-        // file_format
-        t_cellValue = this.getCell(a_row, 6);
-        if (t_cellValue == null)
-        {
-            throw new IOException("Missing file format in row " + a_rowCounter.toString());
-        }
-        t_fileConfig.setFileFormat(t_cellValue);
-        // data_type
-        t_cellValue = this.getCell(a_row, 7);
-        t_fileConfig.setDataType(t_cellValue);
-        // mime_type
-        t_cellValue = this.getCell(a_row, 8);
-        if (t_cellValue == null)
-        {
-            throw new IOException("Missing mime type in row " + a_rowCounter.toString());
-        }
-        t_fileConfig.setMimeType(t_cellValue);
-        // protein
-        t_cellValue = this.getCell(a_row, 9);
-        t_fileConfig.setProteinColumn(t_cellValue);
-        // gene
-        t_cellValue = this.getCell(a_row, 10);
-        t_fileConfig.setGeneColumn(t_cellValue);
-        // glycan
-        t_cellValue = this.getCell(a_row, 11);
-        t_fileConfig.setGlycanColumn(t_cellValue);
-        // disease
-        t_cellValue = this.getCell(a_row, 12);
-        t_fileConfig.setDiseaseColumn(t_cellValue);
         // anatomy
-        t_cellValue = this.getCell(a_row, 13);
-        t_fileConfig.setAnatomyColumn(t_cellValue);
+        if (a_config.getAnatomyColumn() != null)
+        {
+            this.m_handlerAnatomy = MetadataHandler.fromString(a_config.getAnatomyColumn(),
+                    a_nextRecord, a_mappingFolder);
+        }
         // species
-        t_cellValue = this.getCell(a_row, 14);
-        t_fileConfig.setSpeciesColumn(t_cellValue);
+        if (a_config.getSpeciesColumn() == null)
+        {
+            throw new IOException("Protein type files need to have a species column definition: "
+                    + a_config.getFileUrl());
+        }
+        this.m_handlerSpecies = MetadataHandler.fromString(a_config.getSpeciesColumn(),
+                a_nextRecord, a_mappingFolder);
+    }
 
-        return t_fileConfig;
+    private void parseRow(String[] a_row, Integer a_rowCounter) throws IOException
+    {
+        // get protein acc
+        String t_proteinAcc = this.m_handlerProtein.processRow(a_row, a_rowCounter);
+        if (t_proteinAcc.trim().length() == 0)
+        {
+            throw new IOException("Protein column value is empty for row " + a_rowCounter);
+        }
+        // check if it already exists otherwise create it and put it in map
+        Protein t_protein = this.m_proteinMap.get(t_proteinAcc);
+        if (t_protein == null)
+        {
+            t_protein = new Protein();
+            t_protein.setUniprotAcc(t_proteinAcc);
+            this.m_proteinMap.put(t_proteinAcc, t_protein);
+        }
+        // gene
+        String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
+        if (t_proteinAcc.trim().length() == 0)
+        {
+            throw new IOException("Gene value is empty for row " + a_rowCounter);
+        }
+        t_protein.setEnsemblAcc(t_gene);
+        // glycan
+        if (this.m_handlerGlycan != null)
+        {
+            String t_glycan = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
+            if (t_glycan.trim().length() != 0)
+            {
+                t_protein.getCompound().add(t_glycan);
+            }
+        }
+        // disease
+        if (this.m_handlerDisease != null)
+        {
+            String t_disease = this.m_handlerDisease.processRow(a_row, a_rowCounter);
+            if (t_disease.trim().length() != 0)
+            {
+                t_protein.getDisease().add(t_disease);
+            }
+        }
+        // anatomy
+        if (this.m_handlerAnatomy != null)
+        {
+            String t_anatomy = this.m_handlerAnatomy.processRow(a_row, a_rowCounter);
+            if (t_anatomy.trim().length() != 0)
+            {
+                t_protein.getAnatomy().add(t_anatomy);
+            }
+        }
+        // species
+        String t_species = this.m_handlerSpecies.processRow(a_row, a_rowCounter);
+        if (t_species.trim().length() == 0)
+        {
+            throw new IOException("Species value is empty for row " + a_rowCounter);
+        }
+        t_protein.setSpecies(t_species);
     }
 
 }
