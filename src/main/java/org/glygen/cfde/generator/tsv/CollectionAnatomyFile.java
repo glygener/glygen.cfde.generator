@@ -19,6 +19,10 @@ public class CollectionAnatomyFile extends TSVFile
         String[] t_line = new String[3];
         t_line[0] = this.addString(this.m_namespace);
         t_line[1] = this.addString(a_collectionID);
+        if (a_uberonID.startsWith("UBERON_"))
+        {
+            a_uberonID = a_uberonID.replace("UBERON_", "UBERON:");
+        }
         t_line[2] = this.addString(a_uberonID);
         this.m_csvWriter.writeNext(t_line);
     }

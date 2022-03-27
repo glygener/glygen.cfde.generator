@@ -18,7 +18,14 @@ public class CollectionTaxonomyFile extends TSVFile
         String[] t_line = new String[3];
         t_line[0] = this.addString(this.m_namespace);
         t_line[1] = this.addString(a_collectionID);
-        t_line[2] = this.addString(a_taxon);
+        if (a_taxon.startsWith("NCBI:txid"))
+        {
+            t_line[2] = this.addString(a_taxon);
+        }
+        else
+        {
+            t_line[2] = this.addString("NCBI:txid" + a_taxon);
+        }
         this.m_csvWriter.writeNext(t_line);
     }
 

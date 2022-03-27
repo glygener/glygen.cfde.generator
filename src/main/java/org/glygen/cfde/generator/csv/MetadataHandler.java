@@ -116,8 +116,8 @@ public class MetadataHandler
         return t_handler;
     }
 
-    private static HashMap<String, String> loadMappingFile(String a_mappingFolder,
-            String a_fileName) throws IOException
+    public static HashMap<String, String> loadMappingFile(String a_mappingFolder, String a_fileName)
+            throws IOException
     {
         HashMap<String, String> t_mapping = new HashMap<>();
         try

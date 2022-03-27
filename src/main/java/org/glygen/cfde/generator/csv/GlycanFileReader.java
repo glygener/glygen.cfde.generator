@@ -14,6 +14,8 @@ import com.opencsv.CSVReader;
 
 public class GlycanFileReader
 {
+    private Integer m_lineLimit = Integer.MAX_VALUE;
+
     private MetadataHandler m_handlerProtein = null;
     private MetadataHandler m_handlerGene = null;
     private MetadataHandler m_handlerGlycan = null;
@@ -22,6 +24,11 @@ public class GlycanFileReader
     private MetadataHandler m_handlerSpecies = null;
 
     private HashMap<String, Glycan> m_glycanMap = new HashMap<>();
+
+    public GlycanFileReader(Integer a_lineLimit)
+    {
+        this.m_lineLimit = a_lineLimit;
+    }
 
     public List<Glycan> loadFile(String a_csvFile, FileConfig a_config, String a_mappingFolder)
             throws IOException
@@ -41,7 +48,10 @@ public class GlycanFileReader
             while ((t_nextRecord = t_csvReader.readNext()) != null)
             {
                 t_rowCounter++;
-                this.parseRow(t_nextRecord, t_rowCounter);
+                if (t_rowCounter <= this.m_lineLimit)
+                {
+                    this.parseRow(t_nextRecord, t_rowCounter);
+                }
             }
             t_csvReader.close();
         }

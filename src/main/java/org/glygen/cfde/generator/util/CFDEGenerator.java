@@ -58,6 +58,7 @@ public class CFDEGenerator
 {
     private static final String FOLDER_NAME_DOWNLOAD = "download";
     private static final String FOLDER_NAME_TSV = "tsv";
+    private static final Integer LINE_LIMIT = 5;// Integer.MAX_VALUE;
 
     private DCC m_dcc = null;
     private Project m_projectMaster = null;
@@ -136,7 +137,7 @@ public class CFDEGenerator
         this.m_collectionDiseaseFile = new CollectionDiseaseFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionCompoundFile = new CollectionCompoundFile(a_outputFolder,
-                this.m_namespace.getId());
+                this.m_namespace.getId(), this.m_mappingFolder);
         this.m_collectionProteinFile = new CollectionProteinFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionGeneFile = new CollectionGeneFile(a_outputFolder,
@@ -227,7 +228,6 @@ public class CFDEGenerator
         this.m_mappingFolder = a_mappingFolder;
         this.createSubFolders();
         this.openFiles(this.m_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_TSV);
-
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
         // process files
@@ -339,7 +339,7 @@ public class CFDEGenerator
             throws IOException
     {
         // parse the file
-        ProteinFileReader t_reader = new ProteinFileReader();
+        ProteinFileReader t_reader = new ProteinFileReader(CFDEGenerator.LINE_LIMIT);
         List<Protein> t_proteins = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
                 this.m_mappingFolder);
         for (Protein t_protein : t_proteins)
@@ -355,7 +355,7 @@ public class CFDEGenerator
             {
                 this.m_collectionCompoundFile.write(t_collectionID, t_compound);
             }
-            // add disase to collection
+            // add disease to collection
             for (String t_disease : t_protein.getDisease())
             {
                 this.m_collectionDiseaseFile.write(t_collectionID, t_disease);
@@ -374,7 +374,7 @@ public class CFDEGenerator
             throws IOException
     {
         // parse the file
-        GlycanFileReader t_reader = new GlycanFileReader();
+        GlycanFileReader t_reader = new GlycanFileReader(CFDEGenerator.LINE_LIMIT);
         List<Glycan> t_glycans = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
                 this.m_mappingFolder);
         for (Glycan t_glycan : t_glycans)

@@ -1,11 +1,9 @@
-package org.glygen.cfde.generator;
+package org.glygen.cfde.generator.util;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import org.glygen.cfde.generator.util.ChecksumUtil;
-
-public class ChecksumRun
+public class ChecksumUtilRun
 {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException
