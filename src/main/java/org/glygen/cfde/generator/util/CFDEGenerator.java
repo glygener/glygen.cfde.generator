@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.glygen.cfde.generator.csv.CSVError;
 import org.glygen.cfde.generator.csv.GlycanFileReader;
 import org.glygen.cfde.generator.csv.ProteinFileReader;
 import org.glygen.cfde.generator.om.CFDEFile;
@@ -58,7 +59,7 @@ public class CFDEGenerator
 {
     private static final String FOLDER_NAME_DOWNLOAD = "download";
     private static final String FOLDER_NAME_TSV = "tsv";
-    private static final Integer LINE_LIMIT = 5;// Integer.MAX_VALUE;
+    private static final Integer LINE_LIMIT = Integer.MAX_VALUE;
 
     private DCC m_dcc = null;
     private Project m_projectMaster = null;
@@ -68,6 +69,9 @@ public class CFDEGenerator
     private String m_outputFolder = null;
     private String m_mappingFolder = null;
     private String m_downloadFolder = null;
+
+    // error reporting file
+    private CSVError m_errorFile = null;
 
     // core files
     private DCCFile m_dccFile = null;
@@ -116,6 +120,18 @@ public class CFDEGenerator
         this.m_namespace = a_namespace;
     }
 
+    /**
+     * Create and open all TSV files
+     *
+     * Files are now present as member variables and ready to be filled. It is
+     * important to close the files (closeFiles) otherwise parts of the
+     * information will not be written.
+     *
+     * @param a_outputFolder
+     *            Path to the tsv folder that will contain the files
+     * @throws IOException
+     *             Thrown if the file creation fails
+     */
     private void openFiles(String a_outputFolder) throws IOException
     {
         // core
@@ -133,7 +149,7 @@ public class CFDEGenerator
         this.m_collectionDefinedByProjectFile = new CollectionDefinedByProjectFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionAnatomyFile = new CollectionAnatomyFile(a_outputFolder,
-                this.m_namespace.getId());
+                this.m_namespace.getId(), this.m_errorFile);
         this.m_collectionDiseaseFile = new CollectionDiseaseFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionCompoundFile = new CollectionCompoundFile(a_outputFolder,
@@ -143,7 +159,7 @@ public class CFDEGenerator
         this.m_collectionGeneFile = new CollectionGeneFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionTaxonomyFile = new CollectionTaxonomyFile(a_outputFolder,
-                this.m_namespace.getId());
+                this.m_namespace.getId(), this.m_errorFile);
 
         // empty
         this.m_bioSampleDiseaseFile = new BiosampleDiseaseFile(a_outputFolder,
@@ -226,16 +242,30 @@ public class CFDEGenerator
     {
         this.m_outputFolder = a_outputFolder;
         this.m_mappingFolder = a_mappingFolder;
+        // create the output folders
         this.createSubFolders();
+        // open all files and create error output file
+        this.m_errorFile = new CSVError(this.m_outputFolder + File.separator + "log.csv");
         this.openFiles(this.m_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_TSV);
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
         // process files
         for (FileConfig t_fileConfig : a_configFiles)
         {
-            this.processFile(t_fileConfig);
+            this.m_errorFile.setCurrentFile(t_fileConfig.getLocalId());
+            System.out.println("Processing " + t_fileConfig.getLocalId());
+            try
+            {
+                this.processFile(t_fileConfig);
+            }
+            catch (Exception e)
+            {
+                this.m_errorFile.writeEntry("error", t_fileConfig.getLocalId(), null,
+                        e.getMessage(), "Skipped file");
+            }
         }
         this.closeFiles();
+        this.m_errorFile.closeFile();
     }
 
     private void writeBasics()
@@ -251,6 +281,13 @@ public class CFDEGenerator
         this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectGlyGen);
     }
 
+    /**
+     * Create the output folders including the download folder and tsv folder if
+     * they not already exist
+     *
+     * @throws IOException
+     *             Thrown if folder creation fails
+     */
     private void createSubFolders() throws IOException
     {
         // download folder
@@ -341,7 +378,7 @@ public class CFDEGenerator
         // parse the file
         ProteinFileReader t_reader = new ProteinFileReader(CFDEGenerator.LINE_LIMIT);
         List<Protein> t_proteins = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
-                this.m_mappingFolder);
+                this.m_mappingFolder, this.m_errorFile);
         for (Protein t_protein : t_proteins)
         {
             // create collection and associate with file
@@ -376,7 +413,7 @@ public class CFDEGenerator
         // parse the file
         GlycanFileReader t_reader = new GlycanFileReader(CFDEGenerator.LINE_LIMIT);
         List<Glycan> t_glycans = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
-                this.m_mappingFolder);
+                this.m_mappingFolder, this.m_errorFile);
         for (Glycan t_glycan : t_glycans)
         {
             // create collection and associate with file

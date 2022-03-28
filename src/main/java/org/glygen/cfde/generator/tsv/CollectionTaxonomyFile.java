@@ -3,11 +3,17 @@ package org.glygen.cfde.generator.tsv;
 import java.io.File;
 import java.io.IOException;
 
+import org.glygen.cfde.generator.csv.CSVError;
+
 public class CollectionTaxonomyFile extends TSVFile
 {
-    public CollectionTaxonomyFile(String a_folderPath, String a_namespace) throws IOException
+    private CSVError m_errorFile = null;
+
+    public CollectionTaxonomyFile(String a_folderPath, String a_namespace, CSVError a_errorFile)
+            throws IOException
     {
         super();
+        this.m_errorFile = a_errorFile;
         this.m_header = new String[] { "collection_id_namespace", "collection_local_id", "taxon" };
         this.m_namespace = a_namespace;
         this.openFile(a_folderPath + File.separator + "collection_taxonomy.tsv");
@@ -24,6 +30,8 @@ public class CollectionTaxonomyFile extends TSVFile
         }
         else
         {
+            this.m_errorFile.writeEntry("warning",
+                    "Incorrect taxon (" + a_collectionID + "): " + a_taxon, "fixed");
             t_line[2] = this.addString("NCBI:txid" + a_taxon);
         }
         this.m_csvWriter.writeNext(t_line);

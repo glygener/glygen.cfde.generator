@@ -10,7 +10,7 @@ public class MetadataHandlerRun
         String[] t_heading = { "", "1", "uniprotkb_canonical_ac" };
         MetadataHandler a = MetadataHandler.fromString(
                 "file:uniprotkb_canonical_ac:uniprotkb_canonical_ac2ensembl.csv", t_heading,
-                "./data/mapping/");
+                "./data/mapping/", null, "type");
         System.out.println(a);
     }
 

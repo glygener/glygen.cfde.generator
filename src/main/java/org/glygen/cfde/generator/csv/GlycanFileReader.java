@@ -30,12 +30,13 @@ public class GlycanFileReader
         this.m_lineLimit = a_lineLimit;
     }
 
-    public List<Glycan> loadFile(String a_csvFile, FileConfig a_config, String a_mappingFolder)
-            throws IOException
+    public List<Glycan> loadFile(String a_csvFile, FileConfig a_config, String a_mappingFolder,
+            CSVError a_errorLog) throws IOException
     {
         Integer t_rowCounter = 1;
         try
         {
+            a_errorLog.setCurrentFile(a_config.getLocalId());
             // Create an object of filereader
             FileReader t_fileReader = new FileReader(a_csvFile);
             // create csvReader object passing
@@ -43,14 +44,14 @@ public class GlycanFileReader
             // that should be the table heading
             String[] t_nextRecord = t_csvReader.readNext();
             // handle the columns
-            this.createHandler(a_config, t_nextRecord, a_mappingFolder);
+            this.createHandler(a_config, t_nextRecord, a_mappingFolder, a_errorLog);
             // read data line by line
             while ((t_nextRecord = t_csvReader.readNext()) != null)
             {
                 t_rowCounter++;
                 if (t_rowCounter <= this.m_lineLimit)
                 {
-                    this.parseRow(t_nextRecord, t_rowCounter);
+                    this.parseRow(t_nextRecord, t_rowCounter, a_errorLog);
                 }
             }
             t_csvReader.close();
@@ -68,8 +69,8 @@ public class GlycanFileReader
         return t_finalList;
     }
 
-    private void createHandler(FileConfig a_config, String[] a_nextRecord, String a_mappingFolder)
-            throws IOException
+    private void createHandler(FileConfig a_config, String[] a_nextRecord, String a_mappingFolder,
+            CSVError a_errorLog) throws IOException
     {
         // glycan information
         if (a_config.getGlycanColumn() == null)
@@ -78,14 +79,14 @@ public class GlycanFileReader
                     + a_config.getFileUrl());
         }
         this.m_handlerGlycan = MetadataHandler.fromString(a_config.getGlycanColumn(), a_nextRecord,
-                a_mappingFolder);
+                a_mappingFolder, a_errorLog, "glycan");
         // gene information
         if (a_config.getGeneColumn() != null && a_config.getProteinColumn() != null)
         {
             this.m_handlerGene = MetadataHandler.fromString(a_config.getGeneColumn(), a_nextRecord,
-                    a_mappingFolder);
-            this.m_handlerGlycan = MetadataHandler.fromString(a_config.getProteinColumn(),
-                    a_nextRecord, a_mappingFolder);
+                    a_mappingFolder, a_errorLog, "gene");
+            this.m_handlerProtein = MetadataHandler.fromString(a_config.getProteinColumn(),
+                    a_nextRecord, a_mappingFolder, a_errorLog, "protein");
         }
         else if (a_config.getGeneColumn() == null && a_config.getProteinColumn() == null)
         {
@@ -101,29 +102,31 @@ public class GlycanFileReader
         if (a_config.getDiseaseColumn() != null)
         {
             this.m_handlerDisease = MetadataHandler.fromString(a_config.getDiseaseColumn(),
-                    a_nextRecord, a_mappingFolder);
+                    a_nextRecord, a_mappingFolder, a_errorLog, "disease");
         }
         // anatomy
         if (a_config.getAnatomyColumn() != null)
         {
             this.m_handlerAnatomy = MetadataHandler.fromString(a_config.getAnatomyColumn(),
-                    a_nextRecord, a_mappingFolder);
+                    a_nextRecord, a_mappingFolder, a_errorLog, "anatomy");
         }
         // species
         if (a_config.getSpeciesColumn() != null)
         {
             this.m_handlerSpecies = MetadataHandler.fromString(a_config.getSpeciesColumn(),
-                    a_nextRecord, a_mappingFolder);
+                    a_nextRecord, a_mappingFolder, a_errorLog, "species");
         }
     }
 
-    private void parseRow(String[] a_row, Integer a_rowCounter) throws IOException
+    private void parseRow(String[] a_row, Integer a_rowCounter, CSVError a_errorLog)
+            throws IOException
     {
         // get glycan acc
         String t_glycanAcc = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
         if (t_glycanAcc.trim().length() == 0)
         {
-            throw new IOException("Glycan column value is empty for row " + a_rowCounter);
+            a_errorLog.writeEntry("error", a_rowCounter, "Glycan column value is empty");
+            return;
         }
         // check if it already exists otherwise create it and put it in map
         Glycan t_glycan = this.m_glycanMap.get(t_glycanAcc);
@@ -167,11 +170,13 @@ public class GlycanFileReader
             String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
             if (t_protein.trim().length() == 0)
             {
-                throw new IOException("Protein value is empty for row " + a_rowCounter);
+                a_errorLog.writeEntry("error", a_rowCounter, "Protein value is empty");
+                return;
             }
             if (t_gene.trim().length() == 0)
             {
-                throw new IOException("Gene value is empty for row " + a_rowCounter);
+                a_errorLog.writeEntry("error", a_rowCounter, "Gene value is empty");
+                return;
             }
             HashMap<String, Protein> t_map = t_glycan.getProteins();
             Protein t_proteinObject = t_map.get(t_protein);

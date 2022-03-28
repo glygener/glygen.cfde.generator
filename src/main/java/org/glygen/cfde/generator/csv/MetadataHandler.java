@@ -15,6 +15,8 @@ public class MetadataHandler
     private String m_columnName = null;
     private Integer m_position = null;
     private String m_staticInformation = null;
+    private CSVError m_lineErrorReporter = null;
+    private String m_metadataColumn = null;
 
     public MetadataType getType()
     {
@@ -67,9 +69,11 @@ public class MetadataHandler
     }
 
     public static MetadataHandler fromString(String a_string, String[] a_heading,
-            String a_mappingFolder) throws IOException
+            String a_mappingFolder, CSVError a_errorReporter, String a_metadataColumn)
+            throws IOException
     {
         MetadataHandler t_handler = new MetadataHandler();
+        t_handler.setLineErrorReporter(a_errorReporter);
         if (a_string == null)
         {
             throw new IOException("Column string can not be null");
@@ -210,9 +214,9 @@ public class MetadataHandler
             }
             else
             {
-                throw new IOException(
-                        "Line " + a_lineNumber.toString() + " does not have column number "
-                                + this.m_position.toString() + " (" + this.m_columnName + ")");
+                this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
+                        "Row does not have column number " + this.m_position.toString() + " ("
+                                + this.m_columnName + ")");
             }
         }
         else if (this.m_type.equals(MetadataType.MAPPING))
@@ -223,18 +227,40 @@ public class MetadataHandler
                 String t_value = this.m_dictionary.get(t_key);
                 if (t_value == null)
                 {
-                    throw new IOException("Unable to find " + t_key + " from column "
-                            + this.m_columnName + " in mapping file.");
+                    this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
+                            "Unable to find " + t_key + " from column " + this.m_columnName
+                                    + " in mapping file for metadata column "
+                                    + this.m_metadataColumn + ".");
                 }
                 return t_value;
             }
             else
             {
-                throw new IOException(
-                        "Line " + a_lineNumber.toString() + " does not have column number "
-                                + this.m_position.toString() + " (" + this.m_columnName + ")");
+                this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
+                        "Row does not have column number " + this.m_position.toString() + " ("
+                                + this.m_columnName + ")");
             }
         }
         throw new IOException("Can not process metadata type: " + this.m_type.getKey());
+    }
+
+    public CSVError getLineErrorReporter()
+    {
+        return m_lineErrorReporter;
+    }
+
+    public void setLineErrorReporter(CSVError a_lineErrorReporter)
+    {
+        this.m_lineErrorReporter = a_lineErrorReporter;
+    }
+
+    public String getMetadataColumn()
+    {
+        return m_metadataColumn;
+    }
+
+    public void setMetadataColumn(String a_metadataColumn)
+    {
+        this.m_metadataColumn = a_metadataColumn;
     }
 }

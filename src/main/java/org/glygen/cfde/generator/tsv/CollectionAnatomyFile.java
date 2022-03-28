@@ -3,11 +3,17 @@ package org.glygen.cfde.generator.tsv;
 import java.io.File;
 import java.io.IOException;
 
+import org.glygen.cfde.generator.csv.CSVError;
+
 public class CollectionAnatomyFile extends TSVFile
 {
-    public CollectionAnatomyFile(String a_folderPath, String a_namespace) throws IOException
+    private CSVError m_errorFile = null;
+
+    public CollectionAnatomyFile(String a_folderPath, String a_namespace, CSVError a_errorFile)
+            throws IOException
     {
         super();
+        this.m_errorFile = a_errorFile;
         this.m_header = new String[] { "collection_id_namespace", "collection_local_id",
                 "anatomy" };
         this.m_namespace = a_namespace;
@@ -21,6 +27,8 @@ public class CollectionAnatomyFile extends TSVFile
         t_line[1] = this.addString(a_collectionID);
         if (a_uberonID.startsWith("UBERON_"))
         {
+            this.m_errorFile.writeEntry("warning",
+                    "Incorrect UBERON ID (" + a_collectionID + "): " + a_uberonID, "fixed");
             a_uberonID = a_uberonID.replace("UBERON_", "UBERON:");
         }
         t_line[2] = this.addString(a_uberonID);
