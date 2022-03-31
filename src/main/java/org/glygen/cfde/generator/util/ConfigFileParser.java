@@ -138,6 +138,16 @@ public class ConfigFileParser
         t_cellValue = this.getCell(a_row, 14);
         t_fileConfig.setSpeciesColumn(t_cellValue);
 
+        if (t_fileConfig.getProteinColumn() == null && t_fileConfig.getGeneColumn() != null)
+        {
+            throw new IOException("Gene column is specified but protein column is missing in row "
+                    + a_rowCounter.toString());
+        }
+        else if (t_fileConfig.getProteinColumn() != null && t_fileConfig.getGeneColumn() == null)
+        {
+            throw new IOException("Protein column is specified but gene column is missing in row "
+                    + a_rowCounter.toString());
+        }
         return t_fileConfig;
     }
 

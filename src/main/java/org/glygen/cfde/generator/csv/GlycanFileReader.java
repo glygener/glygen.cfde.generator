@@ -123,7 +123,7 @@ public class GlycanFileReader
     {
         // get glycan acc
         String t_glycanAcc = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
-        if (t_glycanAcc.trim().length() == 0)
+        if (t_glycanAcc == null || t_glycanAcc.trim().length() == 0)
         {
             a_errorLog.writeEntry("error", a_rowCounter, "Glycan column value is empty");
             return;
@@ -140,7 +140,7 @@ public class GlycanFileReader
         if (this.m_handlerDisease != null)
         {
             String t_disease = this.m_handlerDisease.processRow(a_row, a_rowCounter);
-            if (t_disease.trim().length() != 0)
+            if (t_disease != null && t_disease.trim().length() != 0)
             {
                 t_glycan.getDisease().add(t_disease);
             }
@@ -149,7 +149,7 @@ public class GlycanFileReader
         if (this.m_handlerAnatomy != null)
         {
             String t_anatomy = this.m_handlerAnatomy.processRow(a_row, a_rowCounter);
-            if (t_anatomy.trim().length() != 0)
+            if (t_anatomy != null && t_anatomy.trim().length() != 0)
             {
                 t_glycan.getAnatomy().add(t_anatomy);
             }
@@ -158,7 +158,7 @@ public class GlycanFileReader
         if (this.m_handlerSpecies != null)
         {
             String t_species = this.m_handlerSpecies.processRow(a_row, a_rowCounter);
-            if (t_species.trim().length() != 0)
+            if (t_species != null && t_species.trim().length() != 0)
             {
                 t_glycan.getSpecies().add(t_species);
             }
@@ -168,14 +168,14 @@ public class GlycanFileReader
         {
             String t_protein = this.m_handlerProtein.processRow(a_row, a_rowCounter);
             String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
-            if (t_protein.trim().length() == 0)
+            if (t_protein == null || t_protein.trim().length() == 0)
             {
                 a_errorLog.writeEntry("error", a_rowCounter, "Protein value is empty");
                 return;
             }
-            if (t_gene.trim().length() == 0)
+            if (t_gene == null || t_gene.trim().length() == 0)
             {
-                a_errorLog.writeEntry("error", a_rowCounter, "Gene value is empty");
+                a_errorLog.writeEntry("warning", a_rowCounter, "Gene value is empty");
                 return;
             }
             HashMap<String, Protein> t_map = t_glycan.getProteins();

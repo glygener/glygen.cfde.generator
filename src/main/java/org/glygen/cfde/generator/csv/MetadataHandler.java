@@ -227,7 +227,7 @@ public class MetadataHandler
                 String t_value = this.m_dictionary.get(t_key);
                 if (t_value == null)
                 {
-                    this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
+                    this.m_lineErrorReporter.writeEntry("mapping warning", a_lineNumber,
                             "Unable to find " + t_key + " from column " + this.m_columnName
                                     + " in mapping file for metadata column "
                                     + this.m_metadataColumn + ".");

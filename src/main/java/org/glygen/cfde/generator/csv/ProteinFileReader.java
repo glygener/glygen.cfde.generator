@@ -120,7 +120,7 @@ public class ProteinFileReader
     {
         // get protein acc
         String t_proteinAcc = this.m_handlerProtein.processRow(a_row, a_rowCounter);
-        if (t_proteinAcc.trim().length() == 0)
+        if (t_proteinAcc == null || t_proteinAcc.trim().length() == 0)
         {
             a_errorLog.writeEntry("error", a_rowCounter, "Protein column value is empty");
             return;
@@ -135,17 +135,19 @@ public class ProteinFileReader
         }
         // gene
         String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
-        if (t_proteinAcc.trim().length() == 0)
+        if (t_gene == null || t_gene.trim().length() == 0)
         {
-            a_errorLog.writeEntry("error", a_rowCounter, "Gene value is empty");
-            return;
+            a_errorLog.writeEntry("warning", a_rowCounter, "Gene value is empty");
         }
-        t_protein.setEnsemblAcc(t_gene);
+        else
+        {
+            t_protein.setEnsemblAcc(t_gene);
+        }
         // glycan
         if (this.m_handlerGlycan != null)
         {
             String t_glycan = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
-            if (t_glycan.trim().length() != 0)
+            if (t_glycan != null && t_glycan.trim().length() != 0)
             {
                 t_protein.getCompound().add(t_glycan);
             }
@@ -154,7 +156,7 @@ public class ProteinFileReader
         if (this.m_handlerDisease != null)
         {
             String t_disease = this.m_handlerDisease.processRow(a_row, a_rowCounter);
-            if (t_disease.trim().length() != 0)
+            if (t_disease != null && t_disease.trim().length() != 0)
             {
                 t_protein.getDisease().add(t_disease);
             }
@@ -163,14 +165,14 @@ public class ProteinFileReader
         if (this.m_handlerAnatomy != null)
         {
             String t_anatomy = this.m_handlerAnatomy.processRow(a_row, a_rowCounter);
-            if (t_anatomy.trim().length() != 0)
+            if (t_anatomy != null && t_anatomy.trim().length() != 0)
             {
                 t_protein.getAnatomy().add(t_anatomy);
             }
         }
         // species
         String t_species = this.m_handlerSpecies.processRow(a_row, a_rowCounter);
-        if (t_species.trim().length() == 0)
+        if (t_species == null || t_species.trim().length() == 0)
         {
             a_errorLog.writeEntry("error", a_rowCounter, "Species value is empty");
             return;
