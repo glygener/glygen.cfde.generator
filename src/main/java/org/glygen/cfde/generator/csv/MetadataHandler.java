@@ -224,13 +224,6 @@ public class MetadataHandler
             {
                 String t_key = a_row[this.m_position];
                 String t_value = this.m_dictionary.get(t_key);
-                if (t_value == null)
-                {
-                    this.m_lineErrorReporter.writeWarning(a_lineNumber,
-                            "Unable to find " + t_key + " from column " + this.m_columnName
-                                    + " in mapping file for metadata column "
-                                    + this.m_metadataColumn + ".");
-                }
                 return t_value;
             }
             else

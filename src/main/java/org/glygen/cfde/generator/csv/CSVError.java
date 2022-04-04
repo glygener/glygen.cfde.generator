@@ -39,7 +39,7 @@ public class CSVError
                 CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                 CSVWriter.DEFAULT_LINE_END);
 
-        t_header = new String[] { "file", "row", "message" };
+        t_header = new String[] { "file", "row/collection", "message", "details" };
         // write the header
         this.m_csvWarning.writeNext(t_header);
     }
@@ -91,27 +91,45 @@ public class CSVError
 
     public void writeWarning(Integer a_rowNumber, String a_message)
     {
-        this.writeWarning(this.m_currentFile, a_rowNumber, a_message);
+        this.writeWarning(this.m_currentFile, a_rowNumber, a_message, "");
     }
 
-    public void writeWarning(String a_file, Integer a_rowNumber, String a_message)
+    public void writeWarning(String a_file, Integer a_rowNumber, String a_message, String a_details)
     {
-        String[] t_line = new String[3];
+        String t_position = "";
+        if (a_rowNumber != null)
+        {
+            t_position = a_rowNumber.toString();
+        }
+        this.writeWarning(a_file, t_position, a_message, a_details);
+    }
+
+    public void writeWarning(String a_collectionID, String a_message, String a_details)
+    {
+        this.writeWarning(this.m_currentFile, a_collectionID, a_message, a_details);
+    }
+
+    private void writeWarning(String a_file, String a_position, String a_message, String a_details)
+    {
+        String[] t_line = new String[4];
         t_line[0] = a_file;
-        if (a_rowNumber == null)
+        if (a_position == null)
         {
             t_line[1] = "";
         }
         else
         {
-            t_line[1] = a_rowNumber.toString();
+            t_line[1] = a_position;
         }
         t_line[2] = a_message;
+        if (a_details == null)
+        {
+            t_line[3] = "";
+        }
+        else
+        {
+            t_line[3] = a_details;
+        }
         this.m_csvWarning.writeNext(t_line);
-    }
-
-    public void writeWarning(String a_message)
-    {
-        this.writeWarning(this.m_currentFile, null, a_message);
     }
 }

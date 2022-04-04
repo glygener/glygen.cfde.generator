@@ -30,8 +30,10 @@ public class CollectionTaxonomyFile extends TSVFile
         }
         else
         {
-            this.m_errorFile.writeWarning("Incorrect taxon (" + a_collectionID + "): " + a_taxon);
-            t_line[2] = this.addString("NCBI:txid" + a_taxon);
+            String t_taxon = "NCBI:txid" + a_taxon;
+            this.m_errorFile.writeWarning(a_collectionID, "Fixed taxon",
+                    a_taxon + " to " + t_taxon);
+            t_line[2] = this.addString(t_taxon);
         }
         this.m_csvWriter.writeNext(t_line);
     }

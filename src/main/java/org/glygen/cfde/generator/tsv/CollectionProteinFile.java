@@ -28,8 +28,8 @@ public class CollectionProteinFile extends TSVFile
         if (a_uniprotID.contains("-"))
         {
             String t_id = a_uniprotID.substring(0, a_uniprotID.indexOf("-"));
-            this.m_errorFile
-                    .writeWarning("Fixed UniProt accession from " + a_uniprotID + " to " + t_id);
+            this.m_errorFile.writeWarning(a_collectionID, "Fixed UniProt accession",
+                    a_uniprotID + " to " + t_id);
             t_line[2] = this.addString(t_id);
         }
         else

@@ -137,7 +137,7 @@ public class ProteinFileReader
         String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
         if (t_gene == null || t_gene.trim().length() == 0)
         {
-            a_errorLog.writeError(a_rowCounter, "Gene value is empty");
+            a_errorLog.writeWarning(a_rowCounter, "Gene value is empty");
         }
         else
         {
