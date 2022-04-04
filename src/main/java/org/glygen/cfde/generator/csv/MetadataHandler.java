@@ -214,9 +214,8 @@ public class MetadataHandler
             }
             else
             {
-                this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
-                        "Row does not have column number " + this.m_position.toString() + " ("
-                                + this.m_columnName + ")");
+                this.m_lineErrorReporter.writeError(a_lineNumber, "Row does not have column number "
+                        + this.m_position.toString() + " (" + this.m_columnName + ")");
             }
         }
         else if (this.m_type.equals(MetadataType.MAPPING))
@@ -227,7 +226,7 @@ public class MetadataHandler
                 String t_value = this.m_dictionary.get(t_key);
                 if (t_value == null)
                 {
-                    this.m_lineErrorReporter.writeEntry("mapping warning", a_lineNumber,
+                    this.m_lineErrorReporter.writeWarning(a_lineNumber,
                             "Unable to find " + t_key + " from column " + this.m_columnName
                                     + " in mapping file for metadata column "
                                     + this.m_metadataColumn + ".");
@@ -236,9 +235,8 @@ public class MetadataHandler
             }
             else
             {
-                this.m_lineErrorReporter.writeEntry("error", a_lineNumber,
-                        "Row does not have column number " + this.m_position.toString() + " ("
-                                + this.m_columnName + ")");
+                this.m_lineErrorReporter.writeError(a_lineNumber, "Row does not have column number "
+                        + this.m_position.toString() + " (" + this.m_columnName + ")");
             }
         }
         throw new IOException("Can not process metadata type: " + this.m_type.getKey());
@@ -246,7 +244,7 @@ public class MetadataHandler
 
     public CSVError getLineErrorReporter()
     {
-        return m_lineErrorReporter;
+        return this.m_lineErrorReporter;
     }
 
     public void setLineErrorReporter(CSVError a_lineErrorReporter)
@@ -256,7 +254,7 @@ public class MetadataHandler
 
     public String getMetadataColumn()
     {
-        return m_metadataColumn;
+        return this.m_metadataColumn;
     }
 
     public void setMetadataColumn(String a_metadataColumn)

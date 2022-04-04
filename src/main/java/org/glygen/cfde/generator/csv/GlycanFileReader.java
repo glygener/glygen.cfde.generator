@@ -125,7 +125,7 @@ public class GlycanFileReader
         String t_glycanAcc = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
         if (t_glycanAcc == null || t_glycanAcc.trim().length() == 0)
         {
-            a_errorLog.writeEntry("error", a_rowCounter, "Glycan column value is empty");
+            a_errorLog.writeError(a_rowCounter, "Glycan column value is empty");
             return;
         }
         // check if it already exists otherwise create it and put it in map
@@ -170,13 +170,12 @@ public class GlycanFileReader
             String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
             if (t_protein == null || t_protein.trim().length() == 0)
             {
-                a_errorLog.writeEntry("error", a_rowCounter, "Protein value is empty");
+                a_errorLog.writeError(a_rowCounter, "Protein value is empty");
                 return;
             }
             if (t_gene == null || t_gene.trim().length() == 0)
             {
-                a_errorLog.writeEntry("warning", a_rowCounter, "Gene value is empty");
-                return;
+                a_errorLog.writeWarning(a_rowCounter, "Gene value is empty");
             }
             HashMap<String, Protein> t_map = t_glycan.getProteins();
             Protein t_proteinObject = t_map.get(t_protein);

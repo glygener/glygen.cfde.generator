@@ -122,7 +122,7 @@ public class ProteinFileReader
         String t_proteinAcc = this.m_handlerProtein.processRow(a_row, a_rowCounter);
         if (t_proteinAcc == null || t_proteinAcc.trim().length() == 0)
         {
-            a_errorLog.writeEntry("error", a_rowCounter, "Protein column value is empty");
+            a_errorLog.writeError(a_rowCounter, "Protein column value is empty");
             return;
         }
         // check if it already exists otherwise create it and put it in map
@@ -137,7 +137,7 @@ public class ProteinFileReader
         String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
         if (t_gene == null || t_gene.trim().length() == 0)
         {
-            a_errorLog.writeEntry("warning", a_rowCounter, "Gene value is empty");
+            a_errorLog.writeError(a_rowCounter, "Gene value is empty");
         }
         else
         {
@@ -174,7 +174,7 @@ public class ProteinFileReader
         String t_species = this.m_handlerSpecies.processRow(a_row, a_rowCounter);
         if (t_species == null || t_species.trim().length() == 0)
         {
-            a_errorLog.writeEntry("error", a_rowCounter, "Species value is empty");
+            a_errorLog.writeError(a_rowCounter, "Species value is empty");
             return;
         }
         t_protein.setSpecies(t_species);

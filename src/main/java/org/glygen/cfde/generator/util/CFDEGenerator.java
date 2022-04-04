@@ -155,7 +155,7 @@ public class CFDEGenerator
         this.m_collectionCompoundFile = new CollectionCompoundFile(a_outputFolder,
                 this.m_namespace.getId(), this.m_mappingFolder);
         this.m_collectionProteinFile = new CollectionProteinFile(a_outputFolder,
-                this.m_namespace.getId());
+                this.m_namespace.getId(), this.m_errorFile);
         this.m_collectionGeneFile = new CollectionGeneFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionTaxonomyFile = new CollectionTaxonomyFile(a_outputFolder,
@@ -245,7 +245,7 @@ public class CFDEGenerator
         // create the output folders
         this.createSubFolders();
         // open all files and create error output file
-        this.m_errorFile = new CSVError(this.m_outputFolder + File.separator + "log.csv");
+        this.m_errorFile = new CSVError(this.m_outputFolder);
         this.openFiles(this.m_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_TSV);
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
@@ -260,8 +260,8 @@ public class CFDEGenerator
             }
             catch (Exception e)
             {
-                this.m_errorFile.writeEntry("error", t_fileConfig.getLocalId(), null,
-                        e.getMessage(), "Skipped file");
+                this.m_errorFile.writeError(t_fileConfig.getLocalId(), null, e.getMessage(),
+                        "Skipped file");
             }
         }
         this.closeFiles();

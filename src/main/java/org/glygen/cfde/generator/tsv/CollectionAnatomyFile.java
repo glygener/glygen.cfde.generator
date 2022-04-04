@@ -27,8 +27,8 @@ public class CollectionAnatomyFile extends TSVFile
         t_line[1] = this.addString(a_collectionID);
         if (a_uberonID.startsWith("UBERON_"))
         {
-            this.m_errorFile.writeEntry("warning",
-                    "Incorrect UBERON ID (" + a_collectionID + "): " + a_uberonID, "fixed");
+            this.m_errorFile
+                    .writeWarning("Incorrect UBERON ID (" + a_collectionID + "): " + a_uberonID);
             a_uberonID = a_uberonID.replace("UBERON_", "UBERON:");
         }
         t_line[2] = this.addString(a_uberonID);
