@@ -329,7 +329,7 @@ public class CFDEGenerator
         t_cfdeFile.setAssayType(null);
         t_cfdeFile.setCreationTime(a_fileConfig.getCreationTime());
         t_cfdeFile.setDataType(a_fileConfig.getDataType());
-        t_cfdeFile.setFileFormat(a_fileConfig.getDataType());
+        t_cfdeFile.setFileFormat(a_fileConfig.getFileFormat());
         t_cfdeFile.setFilename(t_fileName);
         t_cfdeFile.setId(a_fileConfig.getLocalId());
         t_cfdeFile.setMimeType(a_fileConfig.getMimeType());
