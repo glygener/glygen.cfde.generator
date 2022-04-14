@@ -34,6 +34,7 @@ import org.glygen.cfde.generator.tsv.CollectionDefinedByProjectFile;
 import org.glygen.cfde.generator.tsv.CollectionDiseaseFile;
 import org.glygen.cfde.generator.tsv.CollectionFile;
 import org.glygen.cfde.generator.tsv.CollectionGeneFile;
+import org.glygen.cfde.generator.tsv.CollectionInCollectionFile;
 import org.glygen.cfde.generator.tsv.CollectionPhenotypeFile;
 import org.glygen.cfde.generator.tsv.CollectionProteinFile;
 import org.glygen.cfde.generator.tsv.CollectionSubstanceFile;
@@ -110,6 +111,7 @@ public class CFDEGenerator
     private SubjectRaceFile m_subjectRaceFile = null;
     private SubjectRoleTaxonomyFile m_subjectRoleTaxonomyFile = null;
     private SubjectSubstanceFile m_subjectSubstanceFile = null;
+    private CollectionInCollectionFile m_collectionInCollection = null;
 
     public CFDEGenerator(DCC a_dcc, Project a_projectMaster, Project a_projectGlyGen,
             Namespace a_namespace)
@@ -194,6 +196,8 @@ public class CFDEGenerator
                 this.m_namespace.getId());
         this.m_subjectSubstanceFile = new SubjectSubstanceFile(a_outputFolder,
                 this.m_namespace.getId());
+        this.m_collectionInCollection = new CollectionInCollectionFile(a_outputFolder,
+                this.m_namespace.getId());
     }
 
     private void closeFiles() throws IOException
@@ -235,6 +239,7 @@ public class CFDEGenerator
         this.m_subjectRaceFile.closeFile();
         this.m_subjectRoleTaxonomyFile.closeFile();
         this.m_subjectSubstanceFile.closeFile();
+        this.m_collectionInCollection.closeFile();
     }
 
     public void createTSV(List<FileConfig> a_configFiles, String a_outputFolder,

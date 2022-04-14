@@ -15,14 +15,14 @@ public class FileFile extends TSVFile
                 "project_local_id", "persistent_id", "creation_time", "size_in_bytes",
                 "uncompressed_size_in_bytes", "sha256", "md5", "filename", "file_format",
                 "compression_format", "data_type", "assay_type", "analysis_type", "mime_type",
-                "bundle_collection_id_namespace", "bundle_collection_local_id" };
+                "bundle_collection_id_namespace", "bundle_collection_local_id", "dbgap_study_id" };
         this.m_namespace = a_namespace;
         this.openFile(a_folderPath + File.separator + "file.tsv");
     }
 
     public void write(Project a_project, CFDEFile a_file)
     {
-        String[] t_line = new String[19];
+        String[] t_line = new String[20];
         t_line[0] = this.addString(this.m_namespace);
         t_line[1] = this.addString(a_file.getId());
         t_line[2] = this.addString(this.m_namespace);
@@ -42,6 +42,7 @@ public class FileFile extends TSVFile
         t_line[16] = this.addString(a_file.getMimeType());
         t_line[17] = this.addString("");
         t_line[18] = this.addString("");
+        t_line[19] = this.addString("");
         this.m_csvWriter.writeNext(t_line);
     }
 
