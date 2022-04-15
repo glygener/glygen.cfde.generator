@@ -14,6 +14,9 @@ import com.opencsv.CSVReader;
 
 public class GlycanFileReader
 {
+    private GlycanFilter m_filterGlycan = new GlycanFilter();
+    private ProteinFilter m_filterProtein = new ProteinFilter();
+
     private Integer m_lineLimit = Integer.MAX_VALUE;
 
     private MetadataHandler m_handlerProtein = null;
@@ -134,7 +137,10 @@ public class GlycanFileReader
         {
             t_glycan = new Glycan();
             t_glycan.setGlycanAcc(t_glycanAcc);
-            this.m_glycanMap.put(t_glycanAcc, t_glycan);
+            if (!this.m_filterGlycan.isIgnore(t_glycanAcc))
+            {
+                this.m_glycanMap.put(t_glycanAcc, t_glycan);
+            }
         }
         // disease
         if (this.m_handlerDisease != null)
@@ -184,7 +190,10 @@ public class GlycanFileReader
                 t_proteinObject = new Protein();
                 t_proteinObject.setUniprotAcc(t_protein);
                 t_proteinObject.setEnsemblAcc(t_gene);
-                t_map.put(t_protein, t_proteinObject);
+                if (this.m_filterProtein.isIgnore(t_protein))
+                {
+                    t_map.put(t_protein, t_proteinObject);
+                }
             }
         }
     }
