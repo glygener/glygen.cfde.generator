@@ -8,8 +8,8 @@ public class GlycanFilter
 
     public GlycanFilter()
     {
-        this.m_ignore.add("G60070LT");
-        this.m_ignore.add("G78166NF");
+        // this.m_ignore.add("G60070LT");
+        // this.m_ignore.add("G78166NF");
     }
 
     public boolean isIgnore(String a_id)

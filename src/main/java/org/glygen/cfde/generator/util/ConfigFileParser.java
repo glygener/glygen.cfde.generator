@@ -143,11 +143,6 @@ public class ConfigFileParser
             throw new IOException("Gene column is specified but protein column is missing in row "
                     + a_rowCounter.toString());
         }
-        else if (t_fileConfig.getProteinColumn() != null && t_fileConfig.getGeneColumn() == null)
-        {
-            throw new IOException("Protein column is specified but gene column is missing in row "
-                    + a_rowCounter.toString());
-        }
         return t_fileConfig;
     }
 

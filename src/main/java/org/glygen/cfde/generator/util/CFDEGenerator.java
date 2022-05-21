@@ -14,6 +14,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.glygen.cfde.generator.csv.CSVError;
 import org.glygen.cfde.generator.csv.GlycanFileReader;
 import org.glygen.cfde.generator.csv.ProteinFileReader;
+import org.glygen.cfde.generator.csv.ProteinNoGeneFileReader;
 import org.glygen.cfde.generator.om.CFDEFile;
 import org.glygen.cfde.generator.om.DCC;
 import org.glygen.cfde.generator.om.DataFileType;
@@ -358,6 +359,10 @@ public class CFDEGenerator
         {
             this.processGlyGenProteinDataFile(t_localFileNamePath, a_fileConfig);
         }
+        else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_NO_GENE_DATA))
+        {
+            this.processGlyGenProteinNoGeneDataFile(t_localFileNamePath, a_fileConfig);
+        }
         else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_GLYCAN_DATA))
         {
             this.processGlyGenGlycanDataFile(t_localFileNamePath, a_fileConfig);
@@ -392,6 +397,40 @@ public class CFDEGenerator
             // add the protein/gene to collection
             this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
             this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+            // add the glycans to collection
+            for (String t_compound : t_protein.getCompound())
+            {
+                this.m_collectionCompoundFile.write(t_collectionID, t_compound);
+            }
+            // add disease to collection
+            for (String t_disease : t_protein.getDisease())
+            {
+                this.m_collectionDiseaseFile.write(t_collectionID, t_disease);
+            }
+            // add anatomy to collection
+            for (String t_anatomy : t_protein.getAnatomy())
+            {
+                this.m_collectionAnatomyFile.write(t_collectionID, t_anatomy);
+            }
+            // species
+            this.m_collectionTaxonomyFile.write(t_collectionID, t_protein.getSpecies());
+        }
+    }
+
+    private void processGlyGenProteinNoGeneDataFile(String a_localFileNamePath,
+            FileConfig a_fileConfig) throws IOException
+    {
+        // parse the file
+        ProteinNoGeneFileReader t_reader = new ProteinNoGeneFileReader(CFDEGenerator.LINE_LIMIT);
+        List<Protein> t_proteins = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
+                this.m_mappingFolder, this.m_errorFile);
+        for (Protein t_protein : t_proteins)
+        {
+            // create collection and associate with file
+            String t_collectionID = this.createCollection(t_protein.getUniprotAcc(), a_fileConfig,
+                    "Information for protein ", this.m_projectGlyGen);
+            // add the protein/gene to collection
+            this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
             // add the glycans to collection
             for (String t_compound : t_protein.getCompound())
             {
