@@ -15,8 +15,10 @@ To run the program it is necessary to download and install:
 
 It is also necessary to checkout/clone or download the source code from the [repository](https://github.com/glygener/glygen.cfde.generator).
 
-To run the program from commandline use the following command from the root folder of the source code (the **pomk.xml** file is located there):
+Before running the program the code needs to be compiles. Run the following commandline in the root folder of the source code (the **pom.xml** file is located there): 
+`mvn compile`
 
+To finally run the program from commandline use the following command from the root folder of the source code (the **pom.xml** file is located there):
 `mvn exec:java -Dexec.mainClass=org.glygen.cfde.generator.App -Dexec.args="-c ./data/files.csv -o ./data/output/ -p ./data/glygen.properties -m ./data/mapping/"`
 
 The values in double quote are the commandline arguments that need to be adjusted according to the local system:
