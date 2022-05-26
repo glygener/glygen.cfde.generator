@@ -15,7 +15,7 @@ To run the program it is necessary to download and install:
 
 It is also necessary to checkout/clone or download the source code from the [repository](https://github.com/glygener/glygen.cfde.generator).
 
-Before running the program the code needs to be compiles. Run the following commandline in the root folder of the source code (the **pom.xml** file is located there): 
+Before running the program the code needs to be compiled. Run the following commandline in the root folder of the source code (the **pom.xml** file is located there): 
 
 `mvn compile`
 
