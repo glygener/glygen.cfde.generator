@@ -396,7 +396,10 @@ public class CFDEGenerator
                     "Information for protein ", this.m_projectGlyGen);
             // add the protein/gene to collection
             this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
-            this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+            if (t_protein.getEnsemblAcc() != null)
+            {
+                this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+            }
             // add the glycans to collection
             for (String t_compound : t_protein.getCompound())
             {
@@ -470,7 +473,10 @@ public class CFDEGenerator
             for (Protein t_protein : t_proteins.values())
             {
                 this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
-                this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                if (t_protein.getEnsemblAcc() != null)
+                {
+                    this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                }
             }
             // add disase to collection
             for (String t_disease : t_glycan.getDisease())
