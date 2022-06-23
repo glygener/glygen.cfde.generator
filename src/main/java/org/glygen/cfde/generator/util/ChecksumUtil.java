@@ -17,6 +17,7 @@ public class ChecksumUtil
     {
         MessageDigest t_digest = MessageDigest.getInstance("MD5");
         String t_checksum = this.getChecksum(t_digest, new File(a_fileNamePath));
+        t_checksum = this.fillLeftZeros(t_checksum, 32);
         return t_checksum;
     }
 
@@ -24,6 +25,7 @@ public class ChecksumUtil
     {
         MessageDigest t_digest = MessageDigest.getInstance("SHA-256");
         String t_checksum = this.getChecksum(t_digest, new File(a_fileNamePath));
+        t_checksum = this.fillLeftZeros(t_checksum, 64);
         return t_checksum;
     }
 
@@ -53,5 +55,20 @@ public class ChecksumUtil
         Path t_path = Paths.get(a_localFileNamePath);
         Long t_size = Files.size(t_path);
         return t_size;
+    }
+
+    public String fillLeftZeros(String a_inputString, int a_length)
+    {
+        if (a_inputString.length() >= a_length)
+        {
+            return a_inputString;
+        }
+        StringBuilder t_builder = new StringBuilder();
+        while (t_builder.length() < a_length - a_inputString.length())
+        {
+            t_builder.append('0');
+        }
+        t_builder.append(a_inputString);
+        return t_builder.toString();
     }
 }
