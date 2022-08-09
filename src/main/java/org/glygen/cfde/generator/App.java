@@ -20,6 +20,7 @@ import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 import org.glygen.cfde.generator.util.CFDEGenerator;
 import org.glygen.cfde.generator.util.ConfigFileParser;
+import org.glygen.cfde.generator.util.MarkDownGenerator;
 import org.glygen.cfde.generator.util.PropertiesProcessor;
 
 public class App
@@ -76,13 +77,20 @@ public class App
             App.printComandParameter(t_options);
             return;
         }
-        // generate the TSV files in the output folder
         try
         {
+            // generate the TSV files in the output folder
             CFDEGenerator t_generator = new CFDEGenerator(t_dcc, t_projectMaster, t_projectGlyGen,
                     t_namespace);
             t_generator.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
+            // generate CFDE markdown JSON files
+            MarkDownGenerator t_generatorMarkdown = new MarkDownGenerator();
+            t_generatorMarkdown.writeGlycanFile(
+                    t_arguments.getMappingFolder() + File.separator + "glycan.template.md",
+                    t_generator.getGlycanIDs(),
+                    t_arguments.getOutputFolder() + File.separator + "compound.json");
+
         }
         catch (Exception e)
         {

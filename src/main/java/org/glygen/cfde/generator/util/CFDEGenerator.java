@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -113,6 +114,9 @@ public class CFDEGenerator
     private SubjectRoleTaxonomyFile m_subjectRoleTaxonomyFile = null;
     private SubjectSubstanceFile m_subjectSubstanceFile = null;
     private CollectionInCollectionFile m_collectionInCollection = null;
+
+    private HashSet<String> m_proteinIDs = new HashSet<>();
+    private HashMap<String, String> m_glycanIDs = new HashMap<>();
 
     public CFDEGenerator(DCC a_dcc, Project a_projectMaster, Project a_projectGlyGen,
             Namespace a_namespace)
@@ -357,20 +361,58 @@ public class CFDEGenerator
         // decide how to process the file
         if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_DATA))
         {
-            this.processGlyGenProteinDataFile(t_localFileNamePath, a_fileConfig);
+            List<Protein> t_proteins = this.processGlyGenProteinDataFile(t_localFileNamePath,
+                    a_fileConfig);
+            this.logProteins(t_proteins);
         }
         else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_NO_GENE_DATA))
         {
-            this.processGlyGenProteinNoGeneDataFile(t_localFileNamePath, a_fileConfig);
+            List<Protein> t_proteins = this.processGlyGenProteinNoGeneDataFile(t_localFileNamePath,
+                    a_fileConfig);
+            this.logProteins(t_proteins);
         }
         else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_GLYCAN_DATA))
         {
-            this.processGlyGenGlycanDataFile(t_localFileNamePath, a_fileConfig);
+            List<Glycan> t_glycans = this.processGlyGenGlycanDataFile(t_localFileNamePath,
+                    a_fileConfig);
+            this.logGlycans(t_glycans);
         }
         else
         {
             throw new IOException(
                     "Unable to process files of type: " + a_fileConfig.getType().getKey());
+        }
+    }
+
+    private void logGlycans(List<Glycan> a_glycans)
+    {
+        for (Glycan t_glycan : a_glycans)
+        {
+            String t_id = this.m_collectionCompoundFile.getCFDEnamespace(t_glycan.getGlycanAcc());
+            this.m_glycanIDs.put(t_glycan.getGlycanAcc(), t_id);
+            if (t_glycan.getProteins() != null)
+            {
+                for (String t_proteinId : t_glycan.getProteins().keySet())
+                {
+                    this.m_proteinIDs.add(t_proteinId);
+                }
+            }
+        }
+    }
+
+    private void logProteins(List<Protein> a_proteins)
+    {
+        for (Protein t_protein : a_proteins)
+        {
+            this.m_proteinIDs.add(t_protein.getUniprotAcc());
+            if (t_protein.getCompound() != null)
+            {
+                for (String t_glyTouCanId : t_protein.getCompound())
+                {
+                    String t_id = this.m_collectionCompoundFile.getCFDEnamespace(t_glyTouCanId);
+                    this.m_glycanIDs.put(t_glyTouCanId, t_id);
+                }
+            }
         }
     }
 
@@ -382,8 +424,8 @@ public class CFDEGenerator
         return t_timeStamp + "-" + a_fileName;
     }
 
-    private void processGlyGenProteinDataFile(String a_localFileNamePath, FileConfig a_fileConfig)
-            throws IOException
+    private List<Protein> processGlyGenProteinDataFile(String a_localFileNamePath,
+            FileConfig a_fileConfig) throws IOException
     {
         // parse the file
         ProteinFileReader t_reader = new ProteinFileReader(CFDEGenerator.LINE_LIMIT);
@@ -418,9 +460,10 @@ public class CFDEGenerator
             // species
             this.m_collectionTaxonomyFile.write(t_collectionID, t_protein.getSpecies());
         }
+        return t_proteins;
     }
 
-    private void processGlyGenProteinNoGeneDataFile(String a_localFileNamePath,
+    private List<Protein> processGlyGenProteinNoGeneDataFile(String a_localFileNamePath,
             FileConfig a_fileConfig) throws IOException
     {
         // parse the file
@@ -452,10 +495,11 @@ public class CFDEGenerator
             // species
             this.m_collectionTaxonomyFile.write(t_collectionID, t_protein.getSpecies());
         }
+        return t_proteins;
     }
 
-    private void processGlyGenGlycanDataFile(String a_localFileNamePath, FileConfig a_fileConfig)
-            throws IOException
+    private List<Glycan> processGlyGenGlycanDataFile(String a_localFileNamePath,
+            FileConfig a_fileConfig) throws IOException
     {
         // parse the file
         GlycanFileReader t_reader = new GlycanFileReader(CFDEGenerator.LINE_LIMIT);
@@ -494,6 +538,7 @@ public class CFDEGenerator
                 this.m_collectionTaxonomyFile.write(t_collectionID, t_species);
             }
         }
+        return t_glycans;
     }
 
     private String createCollection(String a_id, FileConfig a_fileConfig,
@@ -509,6 +554,16 @@ public class CFDEGenerator
         // associate with project
         this.m_collectionDefinedByProjectFile.write(t_collectionID, a_project.getId());
         return t_collectionID;
+    }
+
+    public HashSet<String> getProteinIDs()
+    {
+        return this.m_proteinIDs;
+    }
+
+    public HashMap<String, String> getGlycanIDs()
+    {
+        return this.m_glycanIDs;
     }
 
 }

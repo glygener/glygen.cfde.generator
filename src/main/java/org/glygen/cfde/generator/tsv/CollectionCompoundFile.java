@@ -30,16 +30,18 @@ public class CollectionCompoundFile extends TSVFile
         String[] t_line = new String[3];
         t_line[0] = this.addString(this.m_namespace);
         t_line[1] = this.addString(a_collectionID);
-        String t_pubchemID = this.m_glyTouCanPubChemMapping.get(a_compoundID);
-        if (t_pubchemID == null)
-        {
-            t_line[2] = this.addString(a_compoundID);
-        }
-        else
-        {
-            t_line[2] = this.addString(t_pubchemID);
-        }
+        String t_id = this.getCFDEnamespace(a_compoundID);
+        t_line[2] = this.addString(t_id);
         this.m_csvWriter.writeNext(t_line);
     }
 
+    public String getCFDEnamespace(String a_glyTouCanId)
+    {
+        String t_pubchemID = this.m_glyTouCanPubChemMapping.get(a_glyTouCanId);
+        if (t_pubchemID == null)
+        {
+            return a_glyTouCanId;
+        }
+        return t_pubchemID;
+    }
 }
