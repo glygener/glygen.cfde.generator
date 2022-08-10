@@ -2,6 +2,7 @@ package org.glygen.cfde.generator;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,18 @@ public class App
                     t_generator.getGlycanIDs(),
                     t_arguments.getOutputFolder() + File.separator + "compound.json");
 
+            FileWriter t_writer = new FileWriter("./glycan.txt");
+            for (String t_glyTouCan : t_generator.getGlycanIDs().keySet())
+            {
+                t_writer.write(t_glyTouCan + "\n");
+            }
+            t_writer.close();
+            t_writer = new FileWriter("./protein.txt");
+            for (String t_protein : t_generator.getProteinIDs())
+            {
+                t_writer.write(t_protein + "\n");
+            }
+            t_writer.close();
         }
         catch (Exception e)
         {
