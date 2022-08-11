@@ -92,6 +92,8 @@ public class App
                     t_generator.getGlycanIDs(),
                     t_arguments.getOutputFolder() + File.separator + "compound.json");
 
+            // log all proteins and glycans into files (used for downloading
+            // their JSON files)
             FileWriter t_writer = new FileWriter("./glycan.txt");
             for (String t_glyTouCan : t_generator.getGlycanIDs().keySet())
             {

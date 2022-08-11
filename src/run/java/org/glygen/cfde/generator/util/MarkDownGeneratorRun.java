@@ -22,12 +22,14 @@ public class MarkDownGeneratorRun
 
         ObjectMapper t_mapper = new ObjectMapper();
         Glycan t_glycanInfo = t_mapper.readValue(t_json, Glycan.class);
+        GlycanCompositionUtil t_compositionUtil = new GlycanCompositionUtil();
 
         Map<String, Object> input = new HashMap<String, Object>();
         input.put("glyTouCanId", "G012345DB");
-        // input.put("pubChemId", "10001");
+        input.put("pubChemId", "10001");
         input.put("mass", t_glycanInfo.getMass());
-        input.put("composition", "something");
+        input.put("composition",
+                t_compositionUtil.buildCompositionString(t_glycanInfo.getComposition()));
         input.put("motifs", t_glycanInfo.getMotifs());
         input.put("organism", t_glycanInfo.getSpecies());
 
