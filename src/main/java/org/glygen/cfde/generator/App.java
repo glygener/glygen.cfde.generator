@@ -21,7 +21,6 @@ import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
 import org.glygen.cfde.generator.util.CFDEGenerator;
 import org.glygen.cfde.generator.util.ConfigFileParser;
-import org.glygen.cfde.generator.util.MarkDownGenerator;
 import org.glygen.cfde.generator.util.PropertiesProcessor;
 
 public class App
@@ -85,22 +84,25 @@ public class App
                     t_namespace);
             t_generator.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
-            // generate CFDE markdown JSON files
-            MarkDownGenerator t_generatorMarkdown = new MarkDownGenerator();
-            t_generatorMarkdown.writeGlycanFile(
-                    t_arguments.getMappingFolder() + File.separator + "glycan.template.md",
-                    t_generator.getGlycanIDs(),
-                    t_arguments.getOutputFolder() + File.separator + "compound.json");
-
             // log all proteins and glycans into files (used for downloading
             // their JSON files)
-            FileWriter t_writer = new FileWriter("./glycan.txt");
+            FileWriter t_writer = new FileWriter(
+                    t_arguments.getOutputFolder() + File.separator + "glycan.txt");
             for (String t_glyTouCan : t_generator.getGlycanIDs().keySet())
             {
-                t_writer.write(t_glyTouCan + "\n");
+                String t_usedNamespaceId = t_generator.getGlycanIDs().get(t_glyTouCan);
+                if (t_glyTouCan.equals(t_usedNamespaceId))
+                {
+                    t_writer.write(t_glyTouCan + "\n");
+                }
+                else
+                {
+                    t_writer.write(t_glyTouCan + " " + t_usedNamespaceId + "\n");
+                }
             }
             t_writer.close();
-            t_writer = new FileWriter("./protein.txt");
+            t_writer = new FileWriter(
+                    t_arguments.getOutputFolder() + File.separator + "protein.txt");
             for (String t_protein : t_generator.getProteinIDs())
             {
                 t_writer.write(t_protein + "\n");
