@@ -99,4 +99,9 @@ public class PropertiesProcessor
         t_nameSpace.setDescription(this.getPropertyString("namespace.description", true));
         return t_nameSpace;
     }
+
+    public Project getProjectArray() throws IOException
+    {
+        return this.getProject("array");
+    }
 }

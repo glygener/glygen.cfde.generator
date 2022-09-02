@@ -67,6 +67,7 @@ public class CFDEGenerator
     private DCC m_dcc = null;
     private Project m_projectMaster = null;
     private Project m_projectGlyGen = null;
+    private Project m_projectArray = null;
     private Namespace m_namespace = null;
 
     private String m_outputFolder = null;
@@ -119,11 +120,12 @@ public class CFDEGenerator
     private HashMap<String, String> m_glycanIDs = new HashMap<>();
 
     public CFDEGenerator(DCC a_dcc, Project a_projectMaster, Project a_projectGlyGen,
-            Namespace a_namespace)
+            Project a_projectArray, Namespace a_namespace)
     {
         this.m_dcc = a_dcc;
         this.m_projectMaster = a_projectMaster;
         this.m_projectGlyGen = a_projectGlyGen;
+        this.m_projectArray = a_projectArray;
         this.m_namespace = a_namespace;
     }
 
@@ -259,7 +261,7 @@ public class CFDEGenerator
         this.openFiles(this.m_outputFolder + File.separator + CFDEGenerator.FOLDER_NAME_TSV);
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
-        // process files
+        // process GlyGen files
         for (FileConfig t_fileConfig : a_configFiles)
         {
             this.m_errorFile.setCurrentFile(t_fileConfig.getLocalId());
@@ -274,8 +276,19 @@ public class CFDEGenerator
                         "Skipped file");
             }
         }
+        // process array files
+        this.downloadArrayDatasets();
+
         this.closeFiles();
         this.m_errorFile.closeFile();
+    }
+
+    private void downloadArrayDatasets() throws IOException
+    {
+        // download the file
+        Downloader t_downloader = new Downloader();
+        byte[] t_file = t_downloader.downloadFile(
+                "https://glygen.ccrc.uga.edu/array/api/array/public/listArrayDataset?offset=0&loadAll=false&sortBy=&order=0");
     }
 
     private void writeBasics()
@@ -287,8 +300,10 @@ public class CFDEGenerator
         // create the root and glygen project
         this.m_projectFile.write(this.m_projectMaster);
         this.m_projectFile.write(this.m_projectGlyGen);
+        this.m_projectFile.write(this.m_projectArray);
         // linking them
         this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectGlyGen);
+        this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectArray);
     }
 
     /**

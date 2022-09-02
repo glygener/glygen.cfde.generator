@@ -40,6 +40,7 @@ public class App
         DCC t_dcc = null;
         Project t_projectMaster = null;
         Project t_projectGlyGen = null;
+        Project t_projectArray = null;
         Namespace t_namespace = null;
         try
         {
@@ -50,6 +51,7 @@ public class App
                 t_dcc = t_processor.getDCC();
                 t_projectMaster = t_processor.getProjectMaster();
                 t_projectGlyGen = t_processor.getProjectGlyGen();
+                t_projectArray = t_processor.getProjectArray();
                 t_namespace = t_processor.getNamespace();
             }
             catch (Exception e)
@@ -81,7 +83,7 @@ public class App
         {
             // generate the TSV files in the output folder
             CFDEGenerator t_generator = new CFDEGenerator(t_dcc, t_projectMaster, t_projectGlyGen,
-                    t_namespace);
+                    t_projectArray, t_namespace);
             t_generator.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
             // log all proteins and glycans into files (used for downloading
