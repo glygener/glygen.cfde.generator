@@ -4,13 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -127,5 +131,88 @@ public class Downloader
         // clean the request
         EntityUtils.consume(t_entity);
         t_response.close();
+    }
+
+    // https://glygen.ccrc.uga.edu/array/api/array/public/listArrayDataset?offset=0&loadAll=false&sortBy=id&order=1&limit=1
+    public String downloadDatasetList(String a_baseUrl, Integer a_offset, Integer a_limit)
+            throws IOException, URISyntaxException
+    {
+        // get request
+        HttpGet t_httpGet = new HttpGet(a_baseUrl + "array/public/listArrayDataset");
+
+        URI uri = new URIBuilder(t_httpGet.getURI()).addParameter("offset", a_offset.toString())
+                .addParameter("loadAll", "false").addParameter("sortBy", "id")
+                .addParameter("order", "1").addParameter("limit", a_limit.toString()).build();
+        ((HttpRequestBase) t_httpGet).setURI(uri);
+        t_httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        // perform request and get response
+        return this.downloadGetToString(t_httpGet);
+    }
+
+    // https://glygen.ccrc.uga.edu/array/api/array/public/getarraydataset/AD1155528?offset=0&loadAll=false
+    public String downloadArrayDataset(String a_baseUrl, String a_datasetId)
+            throws IOException, URISyntaxException
+    {
+        // get request
+        HttpGet t_httpGet = new HttpGet(a_baseUrl + "array/public/getarraydataset/" + a_datasetId);
+
+        URI uri = new URIBuilder(t_httpGet.getURI()).addParameter("offset", "0")
+                .addParameter("loadAll", "false").build();
+        ((HttpRequestBase) t_httpGet).setURI(uri);
+        t_httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        // perform request and get response
+        return this.downloadGetToString(t_httpGet);
+    }
+
+    // https://glygen.ccrc.uga.edu/array/api/swagger-ui.html#/public-glygen-array-controller/listGlycansByBlockLayoutUsingGET
+    public String getGlycansPerBlockLayout(String a_baseUrl, String a_id)
+            throws URISyntaxException, IOException
+    {
+        // get request
+        HttpGet t_httpGet = new HttpGet(a_baseUrl + "array/public/listGlycoucanidsByblockLayout");
+
+        URI uri = new URIBuilder(t_httpGet.getURI()).addParameter("blockLayoutId", a_id).build();
+        ((HttpRequestBase) t_httpGet).setURI(uri);
+        t_httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        // perform request and get response
+        return this.downloadGetToString(t_httpGet);
+    }
+
+    private String downloadGetToString(HttpGet a_getMethod) throws IOException
+    {
+        // perform request and get response
+        CloseableHttpResponse t_response = this.m_httpclient.execute(a_getMethod);
+        HttpEntity t_entity = t_response.getEntity();
+        if (t_response.getStatusLine().getStatusCode() >= 400)
+        {
+            throw new IOException("Received HTTP code ("
+                    + Integer.toString(t_response.getStatusLine().getStatusCode()) + ") for URL: "
+                    + a_getMethod.getURI().toString());
+        }
+        // get the page content
+        ByteArrayOutputStream t_streamBytes = new ByteArrayOutputStream();
+        IOUtils.copy(t_entity.getContent(), t_streamBytes);
+        byte[] t_bytes = t_streamBytes.toByteArray();
+        t_streamBytes.close();
+        // clean the request
+        EntityUtils.consume(t_entity);
+        t_response.close();
+        return new String(t_bytes);
+    }
+
+    // https://glygen.ccrc.uga.edu/array/api/array/public/listGlycans?limit=10000&offset=0&order=0&sortBy=id
+    public String downloadGlycanList(String a_baseUrl, Integer a_offset, Integer a_limit)
+            throws URISyntaxException, IOException
+    {
+        // get request
+        HttpGet t_httpGet = new HttpGet(a_baseUrl + "array/public/listGlycans");
+
+        URI uri = new URIBuilder(t_httpGet.getURI()).addParameter("offset", a_offset.toString())
+                .addParameter("sortBy", "id").addParameter("order", "1")
+                .addParameter("limit", a_limit.toString()).build();
+        ((HttpRequestBase) t_httpGet).setURI(uri);
+        t_httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        // perform request and get response
+        return this.downloadGetToString(t_httpGet);
     }
 }

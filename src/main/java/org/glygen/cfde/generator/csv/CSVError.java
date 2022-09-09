@@ -54,19 +54,29 @@ public class CSVError
 
     public void writeError(String a_file, Integer a_rowNumber, String a_message, String a_status)
     {
-        String[] t_line = new String[4];
-        t_line[0] = a_file;
         if (a_rowNumber == null)
         {
-            t_line[1] = "";
+            this.writeError(a_file, "", a_message, a_status);
         }
         else
         {
-            t_line[1] = a_rowNumber.toString();
+            this.writeError(a_file, a_rowNumber.toString(), a_message, a_status);
         }
+    }
+
+    public void writeError(String a_file, String a_collection, String a_message, String a_status)
+    {
+        String[] t_line = new String[4];
+        t_line[0] = a_file;
+        t_line[1] = a_collection;
         t_line[2] = a_message;
         t_line[3] = a_status;
         this.m_csvError.writeNext(t_line);
+    }
+
+    public void writeError(String a_collection, String a_message, String a_status)
+    {
+        this.writeError(this.m_currentFile, a_collection, a_message, a_status);
     }
 
     public void writeError(Integer a_lineNumber, String a_message)
@@ -84,9 +94,9 @@ public class CSVError
         this.m_currentFile = a_currentFile;
     }
 
-    public void writeError(String a_message, String a_status)
+    public void writeError(String a_message, String a_details)
     {
-        this.writeError(this.m_currentFile, null, a_message, a_status);
+        this.writeError(this.m_currentFile, "", a_message, a_details);
     }
 
     public void writeWarning(Integer a_rowNumber, String a_message)

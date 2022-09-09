@@ -16,6 +16,14 @@ import org.glygen.cfde.generator.csv.CSVError;
 import org.glygen.cfde.generator.csv.GlycanFileReader;
 import org.glygen.cfde.generator.csv.ProteinFileReader;
 import org.glygen.cfde.generator.csv.ProteinNoGeneFileReader;
+import org.glygen.cfde.generator.json.ErrorResponse;
+import org.glygen.cfde.generator.json.dataset.Block;
+import org.glygen.cfde.generator.json.dataset.BlockLayout;
+import org.glygen.cfde.generator.json.dataset.Dataset;
+import org.glygen.cfde.generator.json.dataset.Layout;
+import org.glygen.cfde.generator.json.dataset.PrintedSlide;
+import org.glygen.cfde.generator.json.dataset.Slide;
+import org.glygen.cfde.generator.json.datasetlist.DatasetList;
 import org.glygen.cfde.generator.om.CFDEFile;
 import org.glygen.cfde.generator.om.DCC;
 import org.glygen.cfde.generator.om.DataFileType;
@@ -58,8 +66,11 @@ import org.glygen.cfde.generator.tsv.SubjectRaceFile;
 import org.glygen.cfde.generator.tsv.SubjectRoleTaxonomyFile;
 import org.glygen.cfde.generator.tsv.SubjectSubstanceFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class CFDEGenerator
 {
+    private static final String ARRAY_API_BASE_URL = "https://glygen.ccrc.uga.edu/array/api/";
     private static final String FOLDER_NAME_DOWNLOAD = "download";
     private static final String FOLDER_NAME_TSV = "tsv";
     private static final Integer LINE_LIMIT = Integer.MAX_VALUE;
@@ -118,6 +129,8 @@ public class CFDEGenerator
 
     private HashSet<String> m_proteinIDs = new HashSet<>();
     private HashMap<String, String> m_glycanIDs = new HashMap<>();
+
+    private HashMap<String, List<String>> m_blockLayoutCache = new HashMap<>();
 
     public CFDEGenerator(DCC a_dcc, Project a_projectMaster, Project a_projectGlyGen,
             Project a_projectArray, Namespace a_namespace)
@@ -262,6 +275,170 @@ public class CFDEGenerator
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
         // process GlyGen files
+        // this.processGlyGen(a_configFiles);
+        // process array files
+        this.processArray();
+        this.closeFiles();
+        this.m_errorFile.closeFile();
+    }
+
+    private void processArray()
+    {
+        this.m_errorFile.setCurrentFile("ARRAY DATABASE");
+        HashSet<String> t_arrayDatasets = this.getArrayDatasetIds();
+        for (String t_datasetId : t_arrayDatasets)
+        {
+            this.processArrayDataset(t_datasetId);
+        }
+    }
+
+    private void processArrayDataset(String a_datasetId)
+    {
+        Downloader t_downloader = new Downloader();
+        try
+        {
+            String t_json = t_downloader.downloadArrayDataset(ARRAY_API_BASE_URL, a_datasetId);
+            Dataset t_dataset = null;
+            try
+            {
+                ObjectMapper t_mapper = new ObjectMapper();
+                t_dataset = t_mapper.readValue(t_json, Dataset.class);
+                for (Slide t_slide : t_dataset.getSlides())
+                {
+                    HashMap<String, List<String>> t_glycansPerBlock = this
+                            .getGlycansForSlide(a_datasetId, t_slide, t_downloader);
+                    this.processSlideData(a_datasetId, t_slide, t_glycanIDs);
+                }
+            }
+            catch (Exception e)
+            {
+                String t_errorMessage = this.processArrayError(t_json);
+                if (t_errorMessage == null)
+                {
+                    t_errorMessage = e.getMessage();
+                }
+                this.m_errorFile.writeError(a_datasetId, "Unable to parse dataset JSON",
+                        t_errorMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            this.m_errorFile.writeError(a_datasetId, "Failed to process dataset", e.getMessage());
+        }
+    }
+
+    private HashMap<String, List<String>> getGlycansForSlide(String a_datasetId, Slide a_slide,
+            Downloader a_downloader)
+    {
+        HashMap<String, List<String>> t_result = new HashMap<>();
+        String t_slideId = a_slide.getId();
+        if (a_slide.getId() == null)
+        {
+            t_slideId = "N/A";
+            this.m_errorFile.writeError(a_datasetId, "Unable to find slide ID", "");
+        }
+        PrintedSlide t_slidePrinted = a_slide.getPrintedSlide();
+        if (t_slidePrinted == null)
+        {
+            this.m_errorFile.writeError(a_datasetId, "Unable to find printed slide",
+                    "Slide ID:" + t_slideId);
+            return t_result;
+        }
+        Layout t_layout = t_slidePrinted.getLayout();
+        if (t_layout == null)
+        {
+            this.m_errorFile.writeError(a_datasetId, "Unable to find slide layout",
+                    "Slide ID:" + t_slideId);
+            return t_result;
+        }
+        List<Block> t_blockList = t_layout.getBlocks();
+        if (t_blockList == null || t_blockList.size() == 0)
+        {
+            this.m_errorFile.writeError(a_datasetId, "Unable to find blocks for slide layout",
+                    "Slide ID:" + t_slideId);
+            return t_result;
+        }
+        for (Block t_block : t_blockList)
+        {
+            String t_blockId = t_block.getId();
+            if (t_blockId == null)
+            {
+                this.m_errorFile.writeError(a_datasetId, "Unable to find block ID",
+                        "Slide ID:" + t_slideId);
+            }
+            else
+            {
+                BlockLayout t_blockLayout = t_block.getLayout();
+                if (t_blockLayout == null)
+                {
+                    this.m_errorFile.writeError(a_datasetId,
+                            "Unable to find block layout for block",
+                            "Slide ID:" + t_slideId + "; Block ID: " + t_blockId);
+                }
+                else
+                {
+                    if (t_blockLayout.getId() == null)
+                    {
+                        this.m_errorFile.writeError(a_datasetId,
+                                "Unable to find block layout ID for block",
+                                "Slide ID:" + t_slideId + "; Block ID: " + t_blockId);
+                    }
+                    else
+                    {
+                        List<String> t_glycans = this
+                                .getGlycansForBlockLayout(t_blockLayout.getId(), a_downloader);
+                        t_result.put(t_blockId, t_glycans);
+                    }
+                }
+            }
+        }
+        return t_result;
+    }
+
+    private List<String> getGlycansForBlockLayout(String a_id, Downloader a_downloader)
+    {
+        List<String> t_glycans = this.m_blockLayoutCache.get(a_id);
+        if (t_glycans == null)
+        {
+            String t_json = a_downloader.getGlycansPerBlockLayout(ARRAY_API_BASE_URL, a_id);
+            try
+            {
+                ObjectMapper t_mapper = new ObjectMapper();
+                String[] t_glyTouCan = t_mapper.readValue(t_json, String[].class);
+            }
+            catch (Exception e)
+            {
+                String t_errorMessage = this.processArrayError(t_json);
+                if (t_errorMessage == null)
+                {
+                    t_errorMessage = e.getMessage();
+                }
+                this.m_errorFile.writeError(a_datasetId, "Unable to parse dataset JSON",
+                        t_errorMessage);
+            }
+        }
+    }
+
+    private String processArrayError(String a_json)
+    {
+        String t_result = null;
+        try
+        {
+            ObjectMapper t_mapper = new ObjectMapper();
+            ErrorResponse t_error = t_mapper.readValue(a_json, ErrorResponse.class);
+            t_result = "Web service error response: error code (" + t_error.getErrorCode()
+                    + ") ; status (" + t_error.getStatus() + ") ; status code ("
+                    + t_error.getStatusCode() + ") ; message: " + t_error.getMessage();
+        }
+        catch (Exception e)
+        {
+        }
+        return t_result;
+    }
+
+    private void processGlyGen(List<FileConfig> a_configFiles)
+    {
         for (FileConfig t_fileConfig : a_configFiles)
         {
             this.m_errorFile.setCurrentFile(t_fileConfig.getLocalId());
@@ -272,23 +449,69 @@ public class CFDEGenerator
             }
             catch (Exception e)
             {
-                this.m_errorFile.writeError(t_fileConfig.getLocalId(), null, e.getMessage(),
+                this.m_errorFile.writeError(t_fileConfig.getLocalId(), "", e.getMessage(),
                         "Skipped file");
             }
         }
-        // process array files
-        this.downloadArrayDatasets();
-
-        this.closeFiles();
-        this.m_errorFile.closeFile();
     }
 
-    private void downloadArrayDatasets() throws IOException
+    private HashSet<String> getArrayDatasetIds()
     {
-        // download the file
+        Integer t_limit = 2;
+        Integer t_offset = 0;
+        HashSet<String> t_result = new HashSet<>();
         Downloader t_downloader = new Downloader();
-        byte[] t_file = t_downloader.downloadFile(
-                "https://glygen.ccrc.uga.edu/array/api/array/public/listArrayDataset?offset=0&loadAll=false&sortBy=&order=0");
+        try
+        {
+            while (true)
+            {
+                System.out.println("Retrieving array dataset list: offset (" + t_offset.toString()
+                        + "); limit (" + t_limit.toString() + ")");
+                String t_json = t_downloader.downloadDatasetList(ARRAY_API_BASE_URL, t_offset,
+                        t_limit);
+                try
+                {
+                    ObjectMapper t_mapper = new ObjectMapper();
+                    DatasetList t_datasetList = t_mapper.readValue(t_json, DatasetList.class);
+                    for (Dataset t_dataset : t_datasetList.getDatasetList())
+                    {
+                        if (t_dataset.getId() == null)
+                        {
+                            this.m_errorFile.writeError("Dataset without ID found", "Offset: "
+                                    + t_offset.toString() + " ; Limit: " + t_limit.toString());
+                        }
+                        else
+                        {
+                            t_result.add(t_dataset.getId());
+                        }
+                    }
+                    t_offset += t_limit;
+                    if (t_offset >= t_datasetList.getTotal())
+                    {
+                        return t_result;
+                    }
+                }
+                catch (Exception e)
+                {
+                    ObjectMapper t_mapper = new ObjectMapper();
+                    ErrorResponse t_error = t_mapper.readValue(t_json, ErrorResponse.class);
+                    this.m_errorFile.writeError(
+                            "Webservice call to retieve list of datasets failed --> STOPPED",
+                            "Offset: " + t_offset.toString() + " ; Limit: " + t_limit.toString()
+                                    + " ; error code (" + t_error.getErrorCode() + ") ; status ("
+                                    + t_error.getStatus() + ") ; status code ("
+                                    + t_error.getStatusCode() + ") ; message: "
+                                    + t_error.getMessage());
+                    System.out.println("Retrieval failed: " + e.getMessage());
+                    return t_result;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Unable to retieve array dataset IDs: " + e.getMessage());
+        }
+        return t_result;
     }
 
     private void writeBasics()
