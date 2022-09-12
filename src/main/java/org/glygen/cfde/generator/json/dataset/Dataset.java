@@ -12,6 +12,10 @@ public class Dataset
     private String m_id = null;
     private Sample m_sample = null;
     private List<Slide> m_slides = new ArrayList<>();
+    private String m_name = null;
+    private String m_description = null;
+    private String m_uri = null;
+    private String m_creationDate = null;
 
     @JsonProperty("sample")
     public Sample getSample()
@@ -44,5 +48,49 @@ public class Dataset
     public void setId(String a_id)
     {
         this.m_id = a_id;
+    }
+
+    @JsonProperty("name")
+    public String getName()
+    {
+        return this.m_name;
+    }
+
+    public void setName(String a_name)
+    {
+        this.m_name = a_name;
+    }
+
+    @JsonProperty("description")
+    public String getDescription()
+    {
+        return this.m_description;
+    }
+
+    public void setDescription(String a_description)
+    {
+        this.m_description = a_description;
+    }
+
+    @JsonProperty("uri")
+    public String getUri()
+    {
+        return this.m_uri;
+    }
+
+    public void setUri(String a_uri)
+    {
+        this.m_uri = a_uri;
+    }
+
+    @JsonProperty("dateCreated")
+    public String getCreationDate()
+    {
+        return this.m_creationDate;
+    }
+
+    public void setCreationDate(String a_creationDate)
+    {
+        this.m_creationDate = a_creationDate;
     }
 }
