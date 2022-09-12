@@ -31,6 +31,7 @@ import org.glygen.cfde.generator.json.dataset.PrintedSlide;
 import org.glygen.cfde.generator.json.dataset.ProcessedData;
 import org.glygen.cfde.generator.json.dataset.RawData;
 import org.glygen.cfde.generator.json.dataset.Slide;
+import org.glygen.cfde.generator.json.dataset.UploadedFile;
 import org.glygen.cfde.generator.json.datasetlist.DatasetList;
 import org.glygen.cfde.generator.json.datasetlist.DatasetSimple;
 import org.glygen.cfde.generator.om.CFDEFile;
@@ -77,6 +78,8 @@ import org.glygen.cfde.generator.tsv.SubjectSubstanceFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+// https://data.glygen.org/ln2data/releases/data/current/reviewed/glycan_pubchem_status.csv
+
 // https://github.com/nih-cfde/published-documentation/wiki/TableInfo:-file.tsv
 public class CFDEGenerator
 {
@@ -84,6 +87,11 @@ public class CFDEGenerator
     private static final String FOLDER_NAME_DOWNLOAD = "download";
     private static final String FOLDER_NAME_TSV = "tsv";
     private static final Integer LINE_LIMIT = Integer.MAX_VALUE;
+    private static final String ARRAY_ANALYSIS_TYPE = "OBI:0001985";
+    private static final String ARRAY_ASSAY_TYPE = "OBI:0001985";
+    private static final String ARRAY_DATA_TYPE_IMAGE = "data:1714";
+    private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
+    private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";
 
     private GlycanFilter m_glycanBlackList = new GlycanFilter();
 
@@ -420,7 +428,44 @@ public class CFDEGenerator
         if (a_image.getFile() != null)
         {
             // write the image file and link the collection
-            // TODO
+            try
+            {
+                String t_extension = FilenameUtils.getExtension(a_image.getFile().getFilename());
+                String t_fileFormat = null;
+                String t_mimeType = null;
+                if (t_extension.equalsIgnoreCase("jpg") || t_extension.equalsIgnoreCase("jpeg"))
+                {
+                    t_fileFormat = "format:3579";
+                    t_mimeType = "image/jpeg";
+                }
+                else if (t_extension.equalsIgnoreCase("png"))
+                {
+                    t_fileFormat = "format:3603";
+                    t_mimeType = "image/png";
+                }
+                else if (t_extension.equalsIgnoreCase("tif")
+                        || t_extension.equalsIgnoreCase("tiff"))
+                {
+                    t_fileFormat = "format:3591";
+                    t_mimeType = "image/tiff";
+                }
+                else
+                {
+                    this.m_errorFile.writeWarning(a_dataset.getId(),
+                            "Unknwon file extension for image file. Assume xls instead",
+                            "Found: " + t_extension);
+                    t_fileFormat = "format:3591";
+                    t_mimeType = "image/tiff";
+                }
+                this.processFile(a_dataset, a_image.getFile(), ARRAY_ANALYSIS_TYPE,
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_RAW, t_fileFormat, t_mimeType);
+            }
+            catch (Exception e)
+            {
+                this.m_errorFile.writeError(a_collectionId,
+                        "Error when processing the raw data file of dataset " + a_dataset.getId(),
+                        e.getMessage());
+            }
         }
         // for all raw datasets
         List<RawData> t_rawDataList = a_image.getRawData();
@@ -444,7 +489,38 @@ public class CFDEGenerator
         if (a_rawdata.getFile() != null)
         {
             // write the raw data file and link the collection
-            // TODO
+            try
+            {
+                String t_extension = FilenameUtils.getExtension(a_rawdata.getFile().getFilename());
+                String t_fileFormat = null;
+                String t_mimeType = null;
+                if (t_extension.equalsIgnoreCase("xls"))
+                {
+                    t_fileFormat = "format:3468";
+                    t_mimeType = "application/vnd.ms-excel";
+                }
+                else if (t_extension.equalsIgnoreCase("xlsx"))
+                {
+                    t_fileFormat = "format:3620";
+                    t_mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                }
+                else
+                {
+                    this.m_errorFile.writeWarning(a_dataset.getId(),
+                            "Unknwon file extension for raw data file. Assume xls instead",
+                            "Found: " + t_extension);
+                    t_fileFormat = "format:3468";
+                    t_mimeType = "application/vnd.ms-excel";
+                }
+                this.processFile(a_dataset, a_rawdata.getFile(), ARRAY_ANALYSIS_TYPE,
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_RAW, t_fileFormat, t_mimeType);
+            }
+            catch (Exception e)
+            {
+                this.m_errorFile.writeError(a_collectionId,
+                        "Error when processing the raw data file of dataset " + a_dataset.getId(),
+                        e.getMessage());
+            }
         }
         // for all processed data files
         List<ProcessedData> t_processedDataList = a_rawdata.getProcessedData();
@@ -473,11 +549,47 @@ public class CFDEGenerator
         else
         {
             // write processed data file and link the collection
-            // TODO
+            try
+            {
+                String t_extension = FilenameUtils
+                        .getExtension(a_proceesedData.getFile().getFilename());
+                String t_fileFormat = null;
+                String t_mimeType = null;
+                if (t_extension.equalsIgnoreCase("xls"))
+                {
+                    t_fileFormat = "format:3468";
+                    t_mimeType = "application/vnd.ms-excel";
+                }
+                else if (t_extension.equalsIgnoreCase("xlsx"))
+                {
+                    t_fileFormat = "format:3620";
+                    t_mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                }
+                else
+                {
+                    this.m_errorFile.writeWarning(a_dataset.getId(),
+                            "Unknwon file extension for processed data file. Assume xls instead",
+                            "Found: " + t_extension);
+                    t_fileFormat = "format:3468";
+                    t_mimeType = "application/vnd.ms-excel";
+                }
+                this.processFile(a_dataset, a_proceesedData.getFile(), ARRAY_ANALYSIS_TYPE,
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_PROCESSED, t_fileFormat, t_mimeType);
+            }
+            catch (Exception e)
+            {
+                this.m_errorFile.writeError(a_collectionId,
+                        "Error when processing the processed data file of dataset "
+                                + a_dataset.getId(),
+                        e.getMessage());
+            }
         }
     }
 
-    private void processFile(String a_url, ) throws IOException
+    // https://glygen.ccrc.uga.edu/array/api/array/public/download?fileFolder=/uploads/AD9524196&fileIdentifier=1660671125153.xls&originalName=19-10_2_17104_v5.2_GenePix572_RESULTS.xls.xls
+    private void processFile(Project a_project, UploadedFile a_file, String a_analysisType,
+            String a_assayType, String a_dataType, String a_fileFormat, String a_mimeType)
+            throws IOException
     {
         // download the file
         Downloader t_downloader = new Downloader();
@@ -486,18 +598,18 @@ public class CFDEGenerator
         String t_fileName = FilenameUtils.getName(t_url.getPath());
         String t_localFileName = this.createLocalFileName(t_fileName);
         String t_localFileNamePath = this.m_downloadFolder + File.separator + t_localFileName;
-        t_downloader.downloadFile(a_fileConfig.getFileUrl(), t_localFileNamePath);
+        t_downloader.downloadFile(a_url, t_localFileNamePath);
         CFDEFile t_cfdeFile = new CFDEFile();
         // general information from the config file
-        t_cfdeFile.setAnalysisType(null);
-        t_cfdeFile.setAssayType(null);
-        t_cfdeFile.setCreationTime(a_fileConfig.getCreationTime());
-        t_cfdeFile.setDataType(a_fileConfig.getDataType());
-        t_cfdeFile.setFileFormat(a_fileConfig.getFileFormat());
+        t_cfdeFile.setAnalysisType(a_analysisType);
+        t_cfdeFile.setAssayType(a_assayType);
+        t_cfdeFile.setCreationTime(a_project.getCreationTime());
+        t_cfdeFile.setDataType(a_dataType);
+        t_cfdeFile.setFileFormat(a_fileFormat);
         t_cfdeFile.setFilename(t_fileName);
-        t_cfdeFile.setId(a_fileConfig.getLocalId());
-        t_cfdeFile.setMimeType(a_fileConfig.getMimeType());
-        t_cfdeFile.setPersistentId(a_fileConfig.getPersitentId());
+        t_cfdeFile.setId(a_id);
+        t_cfdeFile.setMimeType(a_mimeType);
+        t_cfdeFile.setPersistentId(a_persistId);
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
@@ -511,31 +623,7 @@ public class CFDEGenerator
             throw new IOException(e.getMessage(), e);
         }
         // write the file entry
-        this.m_fileFile.write(this.m_projectGlyGen, t_cfdeFile);
-        // decide how to process the file
-        if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_DATA))
-        {
-            List<Protein> t_proteins = this.processGlyGenProteinDataFile(t_localFileNamePath,
-                    a_fileConfig);
-            this.logProteins(t_proteins);
-        }
-        else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_NO_GENE_DATA))
-        {
-            List<Protein> t_proteins = this.processGlyGenProteinNoGeneDataFile(t_localFileNamePath,
-                    a_fileConfig);
-            this.logProteins(t_proteins);
-        }
-        else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_GLYCAN_DATA))
-        {
-            List<Glycan> t_glycans = this.processGlyGenGlycanDataFile(t_localFileNamePath,
-                    a_fileConfig);
-            this.logGlycans(t_glycans);
-        }
-        else
-        {
-            throw new IOException(
-                    "Unable to process files of type: " + a_fileConfig.getType().getKey());
-        }
+        this.m_fileFile.write(a_project, t_cfdeFile);
     }
 
     private String writeCollectionInformation(String a_dataSetId, String a_slideId,
