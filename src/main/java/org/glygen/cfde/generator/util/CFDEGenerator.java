@@ -295,7 +295,7 @@ public class CFDEGenerator
         // DCC, ID Namespace, Project, Project in Project
         this.writeBasics();
         // process GlyGen files
-        // this.processGlyGen(a_configFiles);
+        this.processGlyGen(a_configFiles);
         // process array files
         this.processArray();
         this.closeFiles();
@@ -304,13 +304,17 @@ public class CFDEGenerator
 
     private void processArray()
     {
+        Integer t_counter = 0;
         this.m_errorFile.setCurrentFile("ARRAY DATABASE");
         HashSet<String> t_arrayDatasets = this.getArrayDatasetIds();
         for (String t_datasetId : t_arrayDatasets)
         {
-            System.out.println("Process array dataset:" + t_datasetId);
+            t_counter++;
+            System.out
+                    .println("Process array dataset(" + t_counter.toString() + "): " + t_datasetId);
             this.processArrayDataset(t_datasetId);
-            return;
+            // TODO
+            // return;
         }
     }
 
@@ -452,13 +456,14 @@ public class CFDEGenerator
                 else
                 {
                     this.m_errorFile.writeWarning(a_dataset.getId(),
-                            "Unknwon file extension for image file. Assume xls instead",
+                            "Unknwon file extension for image file. Assume tiff instead",
                             "Found: " + t_extension);
                     t_fileFormat = "format:3591";
                     t_mimeType = "image/tiff";
                 }
                 this.processFile(a_dataset, a_image.getFile(), ARRAY_ANALYSIS_TYPE,
-                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_RAW, t_fileFormat, t_mimeType);
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_IMAGE, t_fileFormat, t_mimeType,
+                        a_collectionId);
             }
             catch (Exception e)
             {
@@ -504,6 +509,11 @@ public class CFDEGenerator
                     t_fileFormat = "format:3620";
                     t_mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 }
+                else if (t_extension.equalsIgnoreCase("txt"))
+                {
+                    t_fileFormat = "format:2330";
+                    t_mimeType = "  text/plain";
+                }
                 else
                 {
                     this.m_errorFile.writeWarning(a_dataset.getId(),
@@ -513,7 +523,8 @@ public class CFDEGenerator
                     t_mimeType = "application/vnd.ms-excel";
                 }
                 this.processFile(a_dataset, a_rawdata.getFile(), ARRAY_ANALYSIS_TYPE,
-                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_RAW, t_fileFormat, t_mimeType);
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_RAW, t_fileFormat, t_mimeType,
+                        a_collectionId);
             }
             catch (Exception e)
             {
@@ -574,7 +585,8 @@ public class CFDEGenerator
                     t_mimeType = "application/vnd.ms-excel";
                 }
                 this.processFile(a_dataset, a_proceesedData.getFile(), ARRAY_ANALYSIS_TYPE,
-                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_PROCESSED, t_fileFormat, t_mimeType);
+                        ARRAY_ASSAY_TYPE, ARRAY_DATA_TYPE_PROCESSED, t_fileFormat, t_mimeType,
+                        a_collectionId);
             }
             catch (Exception e)
             {
@@ -588,17 +600,20 @@ public class CFDEGenerator
 
     // https://glygen.ccrc.uga.edu/array/api/array/public/download?fileFolder=/uploads/AD9524196&fileIdentifier=1660671125153.xls&originalName=19-10_2_17104_v5.2_GenePix572_RESULTS.xls.xls
     private void processFile(Project a_project, UploadedFile a_file, String a_analysisType,
-            String a_assayType, String a_dataType, String a_fileFormat, String a_mimeType)
-            throws IOException
+            String a_assayType, String a_dataType, String a_fileFormat, String a_mimeType,
+            String a_collectionID) throws IOException
     {
         // download the file
         Downloader t_downloader = new Downloader();
         // get the file name from the URL
-        URL t_url = new URL(a_url);
-        String t_fileName = FilenameUtils.getName(t_url.getPath());
+        String t_fileName = a_project.getId() + "-" + a_file.getId();
         String t_localFileName = this.createLocalFileName(t_fileName);
         String t_localFileNamePath = this.m_downloadFolder + File.separator + t_localFileName;
-        t_downloader.downloadFile(a_url, t_localFileNamePath);
+        t_downloader.downloadFile(
+                "https://glygen.ccrc.uga.edu/array/api/array/public/download?fileFolder="
+                        + a_file.getFileFolder() + "&fileIdentifier=" + a_file.getId()
+                        + "&originalName=1.xls",
+                t_localFileNamePath);
         CFDEFile t_cfdeFile = new CFDEFile();
         // general information from the config file
         t_cfdeFile.setAnalysisType(a_analysisType);
@@ -607,9 +622,9 @@ public class CFDEGenerator
         t_cfdeFile.setDataType(a_dataType);
         t_cfdeFile.setFileFormat(a_fileFormat);
         t_cfdeFile.setFilename(t_fileName);
-        t_cfdeFile.setId(a_id);
+        t_cfdeFile.setId(t_fileName);
         t_cfdeFile.setMimeType(a_mimeType);
-        t_cfdeFile.setPersistentId(a_persistId);
+        t_cfdeFile.setPersistentId("http://glygen.org/glygenarray/public/file/" + t_fileName);
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
@@ -624,6 +639,7 @@ public class CFDEGenerator
         }
         // write the file entry
         this.m_fileFile.write(a_project, t_cfdeFile);
+        this.m_fileDescribesCollectionFile.write(a_collectionID, t_fileName);
     }
 
     private String writeCollectionInformation(String a_dataSetId, String a_slideId,
@@ -873,7 +889,7 @@ public class CFDEGenerator
                     return t_result;
                 }
                 // TODO
-                return t_result;
+                // return t_result;
             }
         }
         catch (Exception e)
