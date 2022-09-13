@@ -3,7 +3,9 @@ package org.glygen.cfde.generator.om;
 public enum DataFileType
 {
     GLYGEN_PROTEIN_DATA("glygen_protein_data"), GLYGEN_GLYCAN_DATA(
-            "glygen_glycan_data"), GLYGEN_PROTEIN_NO_GENE_DATA("glygen_protein_no_gene_data");
+            "glygen_glycan_data"), GLYGEN_PROTEIN_NO_GENE_DATA(
+                    "glygen_protein_no_gene_data"), GLYGEN_PROTEIN_GLYCAN_MIX_DATA(
+                            "glygen_protein_glycan_mix_data");
 
     private String m_key;
 

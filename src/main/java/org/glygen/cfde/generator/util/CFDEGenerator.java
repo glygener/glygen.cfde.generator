@@ -640,6 +640,7 @@ public class CFDEGenerator
         // write the file entry
         this.m_fileFile.write(a_project, t_cfdeFile);
         this.m_fileDescribesCollectionFile.write(a_collectionID, t_fileName);
+        this.m_collectionDefinedByProjectFile.write(a_collectionID, a_project.getId());
     }
 
     private String writeCollectionInformation(String a_dataSetId, String a_slideId,
@@ -1000,11 +1001,57 @@ public class CFDEGenerator
                     a_fileConfig);
             this.logGlycans(t_glycans);
         }
+        else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_GLYCAN_MIX_DATA))
+        {
+            List<Glycan> t_glycans = this.processGlyGenProteinGlycanMixDataFile(t_localFileNamePath,
+                    a_fileConfig);
+            this.logGlycans(t_glycans);
+        }
         else
         {
             throw new IOException(
                     "Unable to process files of type: " + a_fileConfig.getType().getKey());
         }
+    }
+
+    private List<Protein> processGlyGenProteinGlycanMixDataFile(String a_localFileNamePath,
+            FileConfig a_fileConfig) throws IOException
+    {
+        // parse the file
+        ProteinGlycanMixFileReader t_reader = new ProteinGlycanMixFileReader(
+                CFDEGenerator.LINE_LIMIT);
+        List<Protein> t_proteins = t_reader.loadFile(a_localFileNamePath, a_fileConfig,
+                this.m_mappingFolder, this.m_errorFile);
+        for (Protein t_protein : t_proteins)
+        {
+            // create collection and associate with file
+            String t_collectionID = this.createCollection(t_protein.getUniprotAcc(), a_fileConfig,
+                    "Information for protein ", this.m_projectGlyGen);
+            // add the protein/gene to collection
+            this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
+            if (t_protein.getEnsemblAcc() != null)
+            {
+                this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+            }
+            // add the glycans to collection
+            for (String t_compound : t_protein.getCompound())
+            {
+                this.m_collectionCompoundFile.write(t_collectionID, t_compound);
+            }
+            // add disease to collection
+            for (String t_disease : t_protein.getDisease())
+            {
+                this.m_collectionDiseaseFile.write(t_collectionID, t_disease);
+            }
+            // add anatomy to collection
+            for (String t_anatomy : t_protein.getAnatomy())
+            {
+                this.m_collectionAnatomyFile.write(t_collectionID, t_anatomy);
+            }
+            // species
+            this.m_collectionTaxonomyFile.write(t_collectionID, t_protein.getSpecies());
+        }
+        return t_proteins;
     }
 
     private void logGlycans(List<Glycan> a_glycans)
