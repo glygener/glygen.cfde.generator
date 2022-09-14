@@ -213,7 +213,6 @@ public class ProteinGlycanMixFileReader
             String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
             if (t_protein == null || t_protein.trim().length() == 0)
             {
-                a_errorLog.writeError(a_rowCounter, "Protein value is empty");
                 return;
             }
             if (t_gene == null || t_gene.trim().length() == 0)

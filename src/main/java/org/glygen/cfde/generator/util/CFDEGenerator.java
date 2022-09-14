@@ -88,11 +88,13 @@ public class CFDEGenerator
     private static final String FOLDER_NAME_DOWNLOAD = "download";
     private static final String FOLDER_NAME_TSV = "tsv";
     private static final Integer LINE_LIMIT = Integer.MAX_VALUE;
-    private static final String ARRAY_ANALYSIS_TYPE = "OBI:0001985";
-    private static final String ARRAY_ASSAY_TYPE = "OBI:0001985";
+    private static final String ARRAY_ANALYSIS_TYPE = null;// "OBI:0001985";
+    private static final String ARRAY_ASSAY_TYPE = null;// "OBI:0001985";
     private static final String ARRAY_DATA_TYPE_IMAGE = "data:1714";
     private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
     private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";
+
+    private boolean m_writeGeneLess = true;
 
     private GlycanFilter m_glycanBlackList = new GlycanFilter();
 
@@ -1031,7 +1033,10 @@ public class CFDEGenerator
             this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
             if (t_protein.getEnsemblAcc() != null)
             {
-                this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                if (!this.m_writeGeneLess)
+                {
+                    this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                }
             }
             // add the glycans to collection
             for (String t_compound : t_protein.getCompound())
@@ -1067,7 +1072,10 @@ public class CFDEGenerator
                 this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
                 if (t_protein.getEnsemblAcc() != null)
                 {
-                    this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                    if (!this.m_writeGeneLess)
+                    {
+                        this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                    }
                 }
             }
             // add disase to collection
@@ -1145,7 +1153,10 @@ public class CFDEGenerator
             this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
             if (t_protein.getEnsemblAcc() != null)
             {
-                this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                if (!this.m_writeGeneLess)
+                {
+                    this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                }
             }
             // add the glycans to collection
             for (String t_compound : t_protein.getCompound())
@@ -1224,7 +1235,10 @@ public class CFDEGenerator
                 this.m_collectionProteinFile.write(t_collectionID, t_protein.getUniprotAcc());
                 if (t_protein.getEnsemblAcc() != null)
                 {
-                    this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                    if (!this.m_writeGeneLess)
+                    {
+                        this.m_collectionGeneFile.write(t_collectionID, t_protein.getEnsemblAcc());
+                    }
                 }
             }
             // add disase to collection
