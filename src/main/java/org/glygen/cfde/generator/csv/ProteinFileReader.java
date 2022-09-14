@@ -36,6 +36,7 @@ public class ProteinFileReader
             CSVError a_errorLog) throws IOException
     {
         Integer t_rowCounter = 1;
+        this.m_proteinMap = new HashMap<>();
         try
         {
             a_errorLog.setCurrentFile(a_config.getLocalId());
