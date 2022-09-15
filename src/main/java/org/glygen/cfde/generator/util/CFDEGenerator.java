@@ -423,6 +423,7 @@ public class CFDEGenerator
         {
             String t_collectionId = this.writeCollectionInformation(a_dataset.getId(),
                     a_slide.getId(), t_glycanList);
+            this.m_collectionDefinedByProjectFile.write(t_collectionId, a_dataset.getId());
             for (Image t_image : t_imageList)
             {
                 this.writeImageInformation(t_image, a_dataset, t_collectionId);
@@ -643,7 +644,6 @@ public class CFDEGenerator
         // write the file entry
         this.m_fileFile.write(a_project, t_cfdeFile);
         this.m_fileDescribesCollectionFile.write(a_collectionID, t_fileName);
-        this.m_collectionDefinedByProjectFile.write(a_collectionID, a_project.getId());
     }
 
     private String writeCollectionInformation(String a_dataSetId, String a_slideId,
