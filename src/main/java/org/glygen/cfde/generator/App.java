@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,9 +20,11 @@ import org.glygen.cfde.generator.om.DCC;
 import org.glygen.cfde.generator.om.FileConfig;
 import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
-import org.glygen.cfde.generator.util.CFDEGenerator;
+import org.glygen.cfde.generator.util.CFDEGeneratorArray;
+import org.glygen.cfde.generator.util.CFDEGeneratorGlyGen;
 import org.glygen.cfde.generator.util.ConfigFileParser;
 import org.glygen.cfde.generator.util.PropertiesProcessor;
+import org.glygen.cfde.generator.util.TSVGenerator;
 
 public class App
 {
@@ -82,17 +85,52 @@ public class App
         try
         {
             // generate the TSV files in the output folder
-            CFDEGenerator t_generator = new CFDEGenerator(t_dcc, t_projectMaster, t_projectGlyGen,
+            TSVGenerator t_generatorTSV = new TSVGenerator(t_dcc, t_projectMaster, t_projectGlyGen,
                     t_projectArray, t_namespace);
-            t_generator.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
+            t_generatorTSV.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
+            CFDEGeneratorGlyGen t_generatorGlyGen = new CFDEGeneratorGlyGen(t_generatorTSV);
+            t_generatorGlyGen.process(t_fileConfigs);
+            CFDEGeneratorArray t_generatorArray = new CFDEGeneratorArray(t_generatorTSV);
+            t_generatorArray.process();
+            t_generatorTSV.closeFiles();
             // log all proteins and glycans into files (used for downloading
             // their JSON files)
-            FileWriter t_writer = new FileWriter(
-                    t_arguments.getOutputFolder() + File.separator + "glycan.txt");
-            for (String t_glyTouCan : t_generator.getGlycanIDs().keySet())
+            App.logMolecules(t_arguments, t_generatorGlyGen, t_generatorArray);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed ! " + e.getMessage());
+            return;
+        }
+    }
+
+    private static void logMolecules(AppArguments a_arguments,
+            CFDEGeneratorGlyGen a_generatorGlyGen, CFDEGeneratorArray a_generatorArray)
+            throws IOException
+    {
+        FileWriter t_writer = new FileWriter(
+                a_arguments.getOutputFolder() + File.separator + "glycan.txt");
+        HashMap<String, String> t_glycansGlyGen = a_generatorGlyGen.getGlycanIDs();
+        for (String t_glyTouCan : t_glycansGlyGen.keySet())
+        {
+            String t_usedNamespaceId = t_glycansGlyGen.get(t_glyTouCan);
+            if (t_glyTouCan.equals(t_usedNamespaceId))
             {
-                String t_usedNamespaceId = t_generator.getGlycanIDs().get(t_glyTouCan);
+                t_writer.write(t_glyTouCan + "\n");
+            }
+            else
+            {
+                t_writer.write(t_glyTouCan + " " + t_usedNamespaceId + "\n");
+            }
+        }
+        HashMap<String, String> t_glycansArray = a_generatorArray.getGlycanIDs();
+        for (String t_glyTouCan : t_glycansArray.keySet())
+        {
+            if (t_glycansGlyGen.get(t_glyTouCan) == null)
+            {
+                String t_usedNamespaceId = t_glycansArray.get(t_glyTouCan);
                 if (t_glyTouCan.equals(t_usedNamespaceId))
                 {
                     t_writer.write(t_glyTouCan + "\n");
@@ -102,20 +140,14 @@ public class App
                     t_writer.write(t_glyTouCan + " " + t_usedNamespaceId + "\n");
                 }
             }
-            t_writer.close();
-            t_writer = new FileWriter(
-                    t_arguments.getOutputFolder() + File.separator + "protein.txt");
-            for (String t_protein : t_generator.getProteinIDs())
-            {
-                t_writer.write(t_protein + "\n");
-            }
-            t_writer.close();
         }
-        catch (Exception e)
+        t_writer.close();
+        t_writer = new FileWriter(a_arguments.getOutputFolder() + File.separator + "protein.txt");
+        for (String t_protein : a_generatorGlyGen.getProteinIDs())
         {
-            System.out.println("Failed ! " + e.getMessage());
-            return;
+            t_writer.write(t_protein + "\n");
         }
+        t_writer.close();
     }
 
     /**
