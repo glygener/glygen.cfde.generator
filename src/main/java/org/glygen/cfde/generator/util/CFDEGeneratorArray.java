@@ -40,8 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CFDEGeneratorArray
 {
     private static final String ARRAY_API_BASE_URL = "https://glygen.ccrc.uga.edu/array/api/";
-    private static final String ARRAY_ANALYSIS_TYPE = null;// "OBI:0001985";
-    private static final String ARRAY_ASSAY_TYPE = null;// "OBI:0001985";
+    private static final String ARRAY_ANALYSIS_TYPE = "OBI:0001985";
+    private static final String ARRAY_ASSAY_TYPE = "OBI:0001985";
     private static final String ARRAY_DATA_TYPE_IMAGE = "data:1714";
     private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
     private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";

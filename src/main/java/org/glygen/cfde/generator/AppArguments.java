@@ -6,6 +6,7 @@ public class AppArguments
     private String m_outputFolder = null;
     private String m_propertiesFile = null;
     private String m_mappingFolder = null;
+    private boolean m_writeGeneLess = false;
 
     public String getConfigFile()
     {
@@ -39,12 +40,22 @@ public class AppArguments
 
     public String getMappingFolder()
     {
-        return m_mappingFolder;
+        return this.m_mappingFolder;
     }
 
     public void setMappingFolder(String a_mappingFolder)
     {
         this.m_mappingFolder = a_mappingFolder;
+    }
+
+    public boolean isWriteGeneLess()
+    {
+        return m_writeGeneLess;
+    }
+
+    public void setWriteGeneLess(boolean a_writeGeneLess)
+    {
+        this.m_writeGeneLess = a_writeGeneLess;
     }
 
 }

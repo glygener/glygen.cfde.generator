@@ -89,7 +89,8 @@ public class App
                     t_projectArray, t_namespace);
             t_generatorTSV.createTSV(t_fileConfigs, t_arguments.getOutputFolder(),
                     t_arguments.getMappingFolder());
-            CFDEGeneratorGlyGen t_generatorGlyGen = new CFDEGeneratorGlyGen(t_generatorTSV);
+            CFDEGeneratorGlyGen t_generatorGlyGen = new CFDEGeneratorGlyGen(t_generatorTSV,
+                    t_arguments.isWriteGeneLess());
             t_generatorGlyGen.process(t_fileConfigs);
             CFDEGeneratorArray t_generatorArray = new CFDEGeneratorArray(t_generatorTSV);
             t_generatorArray.process();
@@ -239,6 +240,7 @@ public class App
         t_arguments.setOutputFolder(t_commandLine.getOptionValue("o"));
         t_arguments.setPropertiesFile(t_commandLine.getOptionValue("p"));
         t_arguments.setMappingFolder(t_commandLine.getOptionValue("m"));
+        t_arguments.setWriteGeneLess(t_commandLine.hasOption("g"));
         // check settings
         if (!App.checkArguments(t_arguments))
         {
@@ -388,7 +390,11 @@ public class App
         t_option.setArgs(1);
         t_option.setRequired(false);
         t_options.addOption(t_option);
-
+        // writing geneless
+        t_option = new Option("g", "geneless", false, "Write withoug gene information.");
+        t_option.setArgs(0);
+        t_option.setRequired(false);
+        t_options.addOption(t_option);
         return t_options;
     }
 }

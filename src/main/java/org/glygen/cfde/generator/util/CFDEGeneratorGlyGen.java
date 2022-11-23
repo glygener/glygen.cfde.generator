@@ -36,10 +36,11 @@ public class CFDEGeneratorGlyGen
     private HashSet<String> m_proteinIDs = new HashSet<>();
     private HashMap<String, String> m_glycanIDs = new HashMap<>();
 
-    public CFDEGeneratorGlyGen(TSVGenerator a_tsvGenerator)
+    public CFDEGeneratorGlyGen(TSVGenerator a_tsvGenerator, boolean a_writeGeneLess)
     {
         super();
         this.m_tsvGenerator = a_tsvGenerator;
+        this.m_writeGeneLess = a_writeGeneLess;
     }
 
     public void process(List<FileConfig> a_configFiles)
