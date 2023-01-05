@@ -46,7 +46,7 @@ public class CFDEGeneratorArray
     private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
     private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";
 
-    private static final Integer DATASET_LIMIT = 2;//Integer.MAX_VALUE;
+    private static final Integer DATASET_LIMIT = Integer.MAX_VALUE;
     
     private TSVGenerator m_tsvGenerator = null;
 
