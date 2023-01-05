@@ -39,13 +39,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // https://github.com/nih-cfde/published-documentation/wiki/TableInfo:-file.tsv
 public class CFDEGeneratorArray
 {
-    private static final String ARRAY_API_BASE_URL = "https://glygen.ccrc.uga.edu/array/api/";
+    private static final String ARRAY_API_BASE_URL = "https://glygen.ccrc.uga.edu/ggarray/api/";
     private static final String ARRAY_ANALYSIS_TYPE = "OBI:0001985";
     private static final String ARRAY_ASSAY_TYPE = "OBI:0001985";
     private static final String ARRAY_DATA_TYPE_IMAGE = "data:1714";
     private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
     private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";
 
+    private static final Integer DATASET_LIMIT = Integer.MAX_VALUE;
+    
     private TSVGenerator m_tsvGenerator = null;
 
     private GlycanFilter m_glycanBlackList = new GlycanFilter();
@@ -68,11 +70,12 @@ public class CFDEGeneratorArray
         for (String t_datasetId : t_arrayDatasets)
         {
             t_counter++;
-            System.out
-                    .println("Process array dataset(" + t_counter.toString() + "): " + t_datasetId);
-            this.processArrayDataset(t_datasetId);
-            // TODO
-            // return;
+            if ( t_counter <= DATASET_LIMIT)
+            {
+            	System.out
+            	.println("Process array dataset(" + t_counter.toString() + "): " + t_datasetId);
+            	this.processArrayDataset(t_datasetId);
+            }
         }
     }
 
@@ -375,7 +378,7 @@ public class CFDEGeneratorArray
         String t_localFileNamePath = this.m_tsvGenerator.getDownloadFolder() + File.separator
                 + t_localFileName;
         t_downloader.downloadFile(
-                "https://glygen.ccrc.uga.edu/array/api/array/public/download?fileFolder="
+        		ARRAY_API_BASE_URL + "array/public/download?fileFolder="
                         + a_file.getFileFolder() + "&fileIdentifier=" + a_file.getId()
                         + "&originalName=1.xls",
                 t_localFileNamePath);
@@ -389,7 +392,7 @@ public class CFDEGeneratorArray
         t_cfdeFile.setFilename(t_fileName);
         t_cfdeFile.setId(t_fileName);
         t_cfdeFile.setMimeType(a_mimeType);
-        t_cfdeFile.setPersistentId("http://glygen.org/glygenarray/public/file/" + t_fileName);
+        t_cfdeFile.setPersistentId("http://array.glygen.org/public/file/" + t_fileName);
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
