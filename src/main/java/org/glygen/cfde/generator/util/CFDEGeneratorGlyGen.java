@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.glygen.cfde.generator.csv.GlycanFileReader;
 import org.glygen.cfde.generator.csv.ProteinFileReader;
 import org.glygen.cfde.generator.csv.ProteinGlycanMixFileReader;
+import org.glygen.cfde.generator.csv.ProteinGlycanMixNoGeneFileReader;
 import org.glygen.cfde.generator.csv.ProteinNoGeneFileReader;
 import org.glygen.cfde.generator.om.CFDEFile;
 import org.glygen.cfde.generator.om.DataFileType;
@@ -120,13 +121,105 @@ public class CFDEGeneratorGlyGen
         {
             this.processGlyGenProteinGlycanMixDataFile(t_localFileNamePath, a_fileConfig);
         }
+        else if (a_fileConfig.getType().equals(DataFileType.GLYGEN_PROTEIN_GLYCAN_MIX_NO_GENE_DATA))
+        {
+            this.processGlyGenProteinGlycanMixNoGeneDataFile(t_localFileNamePath, a_fileConfig);
+        }
         else
         {
             throw new IOException(
                     "Unable to process files of type: " + a_fileConfig.getType().getKey());
         }
     }
-
+    
+    private void processGlyGenProteinGlycanMixNoGeneDataFile(String a_localFileNamePath,
+            FileConfig a_fileConfig) throws IOException
+    {
+        // parse the file
+        ProteinGlycanMixNoGeneFileReader t_reader = new ProteinGlycanMixNoGeneFileReader(
+                CFDEGeneratorGlyGen.LINE_LIMIT);
+        t_reader.loadFile(a_localFileNamePath, a_fileConfig, this.m_tsvGenerator.getMappingFolder(),
+                this.m_tsvGenerator.getErrorFile());
+        List<Protein> t_proteinList = t_reader.getProteinList();
+        for (Protein t_protein : t_proteinList)
+        {
+            // create collection and associate with file
+            String t_collectionID = this.createCollection(t_protein.getUniprotAcc(), a_fileConfig,
+                    "Information for protein ", this.m_tsvGenerator.getProjectGlyGen());
+            // add the protein/gene to collection
+            this.m_tsvGenerator.getCollectionProteinFile().write(t_collectionID,
+                    t_protein.getUniprotAcc());
+            if (t_protein.getEnsemblAcc() != null)
+            {
+                if (!this.m_writeGeneLess)
+                {
+                    this.m_tsvGenerator.getCollectionGeneFile().write(t_collectionID,
+                            t_protein.getEnsemblAcc());
+                }
+            }
+            // add the glycans to collection
+            for (String t_compound : t_protein.getCompound())
+            {
+                this.m_tsvGenerator.getCollectionCompoundFile().write(t_collectionID, t_compound);
+            }
+            // add disease to collection
+            for (String t_disease : t_protein.getDisease())
+            {
+                this.m_tsvGenerator.getCollectionDiseaseFile().write(t_collectionID, t_disease);
+            }
+            // add anatomy to collection
+            for (String t_anatomy : t_protein.getAnatomy())
+            {
+                this.m_tsvGenerator.getCollectionAnatomyFile().write(t_collectionID, t_anatomy);
+            }
+            // species
+            this.m_tsvGenerator.getCollectionTaxonomyFile().write(t_collectionID,
+                    t_protein.getSpecies());
+        }
+        this.logProteins(t_proteinList);
+        List<Glycan> t_glycanList = t_reader.getGlycanList();
+        for (Glycan t_glycan : t_glycanList)
+        {
+            // create collection and associate with file
+            String t_collectionID = this.createCollection(t_glycan.getGlycanAcc(), a_fileConfig,
+                    "Information for glycan ", this.m_tsvGenerator.getProjectGlyGen());
+            // glycan
+            this.m_tsvGenerator.getCollectionCompoundFile().write(t_collectionID,
+                    t_glycan.getGlycanAcc());
+            // add the protein/gene to collection
+            HashMap<String, Protein> t_proteins = t_glycan.getProteins();
+            for (Protein t_protein : t_proteins.values())
+            {
+                this.m_tsvGenerator.getCollectionProteinFile().write(t_collectionID,
+                        t_protein.getUniprotAcc());
+                if (t_protein.getEnsemblAcc() != null)
+                {
+                    if (!this.m_writeGeneLess)
+                    {
+                        this.m_tsvGenerator.getCollectionGeneFile().write(t_collectionID,
+                                t_protein.getEnsemblAcc());
+                    }
+                }
+            }
+            // add disase to collection
+            for (String t_disease : t_glycan.getDisease())
+            {
+                this.m_tsvGenerator.getCollectionDiseaseFile().write(t_collectionID, t_disease);
+            }
+            // add anatomy to collection
+            for (String t_anatomy : t_glycan.getAnatomy())
+            {
+                this.m_tsvGenerator.getCollectionAnatomyFile().write(t_collectionID, t_anatomy);
+            }
+            // species
+            for (String t_species : t_glycan.getSpecies())
+            {
+                this.m_tsvGenerator.getCollectionTaxonomyFile().write(t_collectionID, t_species);
+            }
+        }
+        this.logGlycans(t_glycanList);
+    }
+    
     private void processGlyGenProteinGlycanMixDataFile(String a_localFileNamePath,
             FileConfig a_fileConfig) throws IOException
     {
