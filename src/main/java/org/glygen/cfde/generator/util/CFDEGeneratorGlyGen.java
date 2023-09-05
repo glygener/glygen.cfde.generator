@@ -131,7 +131,7 @@ public class CFDEGeneratorGlyGen
                     "Unable to process files of type: " + a_fileConfig.getType().getKey());
         }
     }
-    
+
     private void processGlyGenProteinGlycanMixNoGeneDataFile(String a_localFileNamePath,
             FileConfig a_fileConfig) throws IOException
     {
@@ -219,7 +219,7 @@ public class CFDEGeneratorGlyGen
         }
         this.logGlycans(t_glycanList);
     }
-    
+
     private void processGlyGenProteinGlycanMixDataFile(String a_localFileNamePath,
             FileConfig a_fileConfig) throws IOException
     {

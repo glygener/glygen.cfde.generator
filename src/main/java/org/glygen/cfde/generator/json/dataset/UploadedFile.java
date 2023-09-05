@@ -10,6 +10,7 @@ public class UploadedFile
     private String m_filename = null;
     private String m_format = null;
     private String m_fileFolder = null;
+    private String m_drsId = null;
 
     @JsonProperty("fileFolder")
     public String getFileFolder()
@@ -53,5 +54,16 @@ public class UploadedFile
     public void setFormat(String a_format)
     {
         this.m_format = a_format;
+    }
+
+    @JsonProperty("drsId")
+    public String getDrsId()
+    {
+        return this.m_drsId;
+    }
+
+    public void setDrsId(String a_drsId)
+    {
+        this.m_drsId = a_drsId;
     }
 }
