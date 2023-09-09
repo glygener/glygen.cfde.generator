@@ -31,6 +31,10 @@ import org.glygen.cfde.generator.json.datasetlist.DatasetList;
 import org.glygen.cfde.generator.json.datasetlist.DatasetSimple;
 import org.glygen.cfde.generator.om.CFDEFile;
 import org.glygen.cfde.generator.om.Project;
+import org.glygen.drsclient.DRSClient;
+import org.glygen.drsclient.DRSClientImpl;
+import org.glygen.drsclient.model.AccessURL;
+import org.glygen.drsclient.model.DrsError;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -46,7 +50,7 @@ public class CFDEGeneratorArray
     private static final String ARRAY_DATA_TYPE_RAW = "data:3110";
     private static final String ARRAY_DATA_TYPE_PROCESSED = "data:3111";
 
-    private static final Integer DATASET_LIMIT = Integer.MAX_VALUE;
+    private static final Integer DATASET_LIMIT = 10;// Integer.MAX_VALUE;
 
     private TSVGenerator m_tsvGenerator = null;
 
@@ -370,6 +374,16 @@ public class CFDEGeneratorArray
             String a_assayType, String a_dataType, String a_fileFormat, String a_mimeType,
             String a_collectionID) throws IOException
     {
+        String t_drsURI = "drs://glygen.ccrc.uga.edu/" + a_file.getDrsId();
+        String t_fileURL = null;// this.getFileURLfromDRS(t_drsURI,
+                                // a_project.getId());
+        if (t_fileURL == null)
+        {
+            // DRS failed lets go old fashion
+            t_fileURL = ARRAY_API_BASE_URL + "array/public/download?fileFolder="
+                    + a_file.getFileFolder() + "&fileIdentifier=" + a_file.getId()
+                    + "&originalName=1.xls";
+        }
         // download the file
         Downloader t_downloader = new Downloader();
         // get the file name from the URL
@@ -377,10 +391,7 @@ public class CFDEGeneratorArray
         String t_localFileName = this.createLocalFileName(t_fileName);
         String t_localFileNamePath = this.m_tsvGenerator.getDownloadFolder() + File.separator
                 + t_localFileName;
-        t_downloader.downloadFile(
-                ARRAY_API_BASE_URL + "array/public/download?fileFolder=" + a_file.getFileFolder()
-                        + "&fileIdentifier=" + a_file.getId() + "&originalName=1.xls",
-                t_localFileNamePath);
+        t_downloader.downloadFile(t_fileURL, t_localFileNamePath);
         CFDEFile t_cfdeFile = new CFDEFile();
         // general information from the config file
         t_cfdeFile.setAnalysisType(a_analysisType);
@@ -393,7 +404,7 @@ public class CFDEGeneratorArray
         t_cfdeFile.setMimeType(a_mimeType);
         // t_cfdeFile.setPersistentId("http://array.glygen.org/public/file/" +
         // t_fileName);
-        t_cfdeFile.setPersistentId("drs://glygen.ccrc.uga.edu/" + a_file.getDrsId());
+        t_cfdeFile.setPersistentId(t_drsURI);
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
@@ -409,6 +420,34 @@ public class CFDEGeneratorArray
         // write the file entry
         this.m_tsvGenerator.getFileFile().write(a_project, t_cfdeFile);
         this.m_tsvGenerator.getFileDescribesCollectionFile().write(a_collectionID, t_fileName);
+    }
+
+    private String getFileURLfromDRS(String a_drsURI, String a_datasetId)
+    {
+        DRSClient t_drsClient = new DRSClientImpl();
+        Object t_drsResponse = t_drsClient.getAccessURL(a_drsURI);
+        if (t_drsResponse instanceof AccessURL)
+        {
+            AccessURL t_drsURL = (AccessURL) t_drsResponse;
+            String t_url = t_drsURL.getUrl();
+            if (t_url == null)
+            {
+                this.m_tsvGenerator.getErrorFile().writeError(a_datasetId,
+                        "DRS URI did not provide access URL.", a_drsURI);
+            }
+            return t_url;
+        }
+        else
+        {
+            DrsError t_drsError = (DrsError) t_drsResponse;
+
+            this.m_tsvGenerator.getErrorFile()
+                    .writeError(
+                            a_datasetId, "DRS URI resulted into an error (Status: "
+                                    + t_drsError.getStatus_code() + "): " + t_drsError.getMsg(),
+                            a_drsURI);
+            return null;
+        }
     }
 
     private String writeCollectionInformation(String a_dataSetId, String a_slideId,

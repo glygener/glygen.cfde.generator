@@ -102,9 +102,10 @@ public class App
         }
         catch (Exception e)
         {
-            System.out.println("Failed ! " + e.getMessage());
+            System.out.println("Failed: " + e.getMessage());
             return;
         }
+        System.out.println("Finished!");
     }
 
     private static void logMolecules(AppArguments a_arguments,
