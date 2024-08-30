@@ -15,9 +15,11 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
 public class Downloader
@@ -29,25 +31,39 @@ public class Downloader
     private BasicCookieStore m_cookieStore = null;
     private CloseableHttpClient m_httpclient = null;
 
-    public Downloader()
+    public Downloader() throws IOException
     {
         this.connect();
     }
 
     /**
      * Create the HTTPClient
+     *
+     * @throws IOException
      */
-    private void connect()
+    private void connect() throws IOException
     {
         // configure timeouts
         int timeout = 10;
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout * 1000)
                 .setConnectionRequestTimeout(timeout * 1000).setSocketTimeout(timeout * 1000)
                 .build();
+        SSLConnectionSocketFactory sslsf = null;
+        try
+        {
+            SSLContextBuilder builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, (chain, authType) -> true);
+            sslsf = new SSLConnectionSocketFactory(builder.build());
+        }
+        catch (Exception e)
+        {
+            throw new IOException(e.getMessage(), e);
+        }
+
         // create cookie store and HTTP client
         this.m_cookieStore = new BasicCookieStore();
         this.m_httpclient = HttpClients.custom().setDefaultCookieStore(this.m_cookieStore)
-                .setDefaultRequestConfig(config).build();
+                .setSSLSocketFactory(sslsf).setDefaultRequestConfig(config).build();
     }
 
     /**

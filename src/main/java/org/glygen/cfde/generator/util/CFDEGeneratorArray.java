@@ -66,7 +66,7 @@ public class CFDEGeneratorArray
         this.m_tsvGenerator = a_tsvGenerator;
     }
 
-    public void process()
+    public void process() throws IOException
     {
         Integer t_counter = 0;
         this.m_tsvGenerator.getErrorFile().setCurrentFile("ARRAY DATABASE");
@@ -83,7 +83,7 @@ public class CFDEGeneratorArray
         }
     }
 
-    private void processArrayDataset(String a_datasetId)
+    private void processArrayDataset(String a_datasetId) throws IOException
     {
         Downloader t_downloader = new Downloader();
         try
@@ -631,7 +631,7 @@ public class CFDEGeneratorArray
         return t_result;
     }
 
-    private HashSet<String> getArrayDatasetIds()
+    private HashSet<String> getArrayDatasetIds() throws IOException
     {
         Integer t_limit = 5;
         Integer t_offset = 0;
