@@ -16,6 +16,7 @@ import org.glygen.cfde.generator.tsv.BiosampleGeneFile;
 import org.glygen.cfde.generator.tsv.BiosampleInCollectionFile;
 import org.glygen.cfde.generator.tsv.BiosampleSubstanceFile;
 import org.glygen.cfde.generator.tsv.CollectionAnatomyFile;
+import org.glygen.cfde.generator.tsv.CollectionBiofluid;
 import org.glygen.cfde.generator.tsv.CollectionCompoundFile;
 import org.glygen.cfde.generator.tsv.CollectionDefinedByProjectFile;
 import org.glygen.cfde.generator.tsv.CollectionDiseaseFile;
@@ -90,6 +91,7 @@ public class TSVGenerator
     private BiosampleGeneFile m_bioSampleGene = null;
     private BiosampleInCollectionFile m_bioSampleInCollectionFile = null;
     private BiosampleSubstanceFile m_bioSampleSubstanceFile = null;
+    private CollectionBiofluid m_collectionBioFluidFile = null;
     private CollectionPhenotypeFile m_collectionPhenotypeFile = null;
     private CollectionSubstanceFile m_collectionSubstanceFile = null;
     private FileDescribesBiosampleFile m_fileDescribesBiosampleFile = null;
@@ -166,6 +168,8 @@ public class TSVGenerator
                 this.m_namespace.getId());
         this.m_bioSampleSubstanceFile = new BiosampleSubstanceFile(a_outputFolder,
                 this.m_namespace.getId());
+        this.m_collectionBioFluidFile = new CollectionBiofluid(a_outputFolder,
+                this.m_namespace.getId());
         this.m_collectionPhenotypeFile = new CollectionPhenotypeFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_collectionSubstanceFile = new CollectionSubstanceFile(a_outputFolder,
@@ -219,6 +223,7 @@ public class TSVGenerator
         this.m_bioSampleGene.closeFile();
         this.m_bioSampleInCollectionFile.closeFile();
         this.m_bioSampleSubstanceFile.closeFile();
+        this.m_collectionBioFluidFile.closeFile();
         this.m_collectionPhenotypeFile.closeFile();
         this.m_collectionSubstanceFile.closeFile();
         this.m_fileDescribesBiosampleFile.closeFile();
