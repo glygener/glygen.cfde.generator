@@ -81,10 +81,11 @@ public class ConfigFileParser
         t_fileConfig.setLocalId(t_cellValue);
         // persistent_id
         t_cellValue = this.getCell(a_row, 4);
-        if (t_cellValue == null)
-        {
-            throw new IOException("Missing persistent ID in row " + a_rowCounter.toString());
-        }
+        // if (t_cellValue == null)
+        // {
+        // throw new IOException("Missing persistent ID in row " +
+        // a_rowCounter.toString());
+        // }
         t_fileConfig.setPersitentId(t_cellValue);
         // creation_time
         t_cellValue = this.getCell(a_row, 5);
@@ -137,7 +138,13 @@ public class ConfigFileParser
         // species
         t_cellValue = this.getCell(a_row, 14);
         t_fileConfig.setSpeciesColumn(t_cellValue);
-
+        // species
+        t_cellValue = this.getCell(a_row, 15);
+        t_fileConfig.setAccessUrl(t_cellValue);
+        if (t_cellValue == null)
+        {
+            throw new IOException("Missing access URL in row " + a_rowCounter.toString());
+        }
         if (t_fileConfig.getProteinColumn() == null && t_fileConfig.getGeneColumn() != null)
         {
             throw new IOException("Gene column is specified but protein column is missing in row "

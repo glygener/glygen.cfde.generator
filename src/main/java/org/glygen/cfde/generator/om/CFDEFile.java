@@ -16,6 +16,7 @@ public class CFDEFile
     private String m_mimeType = null;
     private String m_assayType = null;
     private String m_analysisType = null;
+    private String m_accessUrl = null;
 
     public String getId()
     {
@@ -135,6 +136,16 @@ public class CFDEFile
     public void setAnalysisType(String a_analysisType)
     {
         this.m_analysisType = a_analysisType;
+    }
+
+    public String getAccessUrl()
+    {
+        return this.m_accessUrl;
+    }
+
+    public void setAccessUrl(String a_accessUrl)
+    {
+        this.m_accessUrl = a_accessUrl;
     }
 
 }

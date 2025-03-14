@@ -84,6 +84,7 @@ public class CFDEGeneratorGlyGen
         t_cfdeFile.setId(a_fileConfig.getLocalId());
         t_cfdeFile.setMimeType(a_fileConfig.getMimeType());
         t_cfdeFile.setPersistentId(a_fileConfig.getPersitentId());
+        t_cfdeFile.setAccessUrl(a_fileConfig.getAccessUrl());
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
