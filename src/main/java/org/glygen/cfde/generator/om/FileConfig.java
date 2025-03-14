@@ -19,6 +19,7 @@ public class FileConfig
     private String m_diseaseColumn = null;
     private String m_anatomyColumn = null;
     private String m_speciesColumn = null;
+    private String m_accessUrl = null;
 
     public DataFileType getType()
     {
@@ -168,5 +169,15 @@ public class FileConfig
     public void setSpeciesColumn(String a_speciesColumn)
     {
         this.m_speciesColumn = a_speciesColumn;
+    }
+
+    public String getAccessUrl()
+    {
+        return this.m_accessUrl;
+    }
+
+    public void setAccessUrl(String a_accessUrl)
+    {
+        this.m_accessUrl = a_accessUrl;
     }
 }

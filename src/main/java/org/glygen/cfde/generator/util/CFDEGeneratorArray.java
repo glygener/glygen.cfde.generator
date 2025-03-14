@@ -404,7 +404,8 @@ public class CFDEGeneratorArray
         t_cfdeFile.setMimeType(a_mimeType);
         // t_cfdeFile.setPersistentId("http://array.glygen.org/public/file/" +
         // t_fileName);
-        t_cfdeFile.setPersistentId(t_drsURI);
+        // t_cfdeFile.setPersistentId(t_drsURI);
+        t_cfdeFile.setAccessUrl(t_drsURI);
         // file related information
         ChecksumUtil t_util = new ChecksumUtil();
         try
