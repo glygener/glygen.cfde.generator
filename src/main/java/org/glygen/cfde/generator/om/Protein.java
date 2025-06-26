@@ -1,15 +1,21 @@
 package org.glygen.cfde.generator.om;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 public class Protein
 {
+    public static final String PHOSPHORYLATION_SYMBOL = "P";
+    public static final String UNKNOWN_GLYCAN_SYMBOL = "N/A";
+
     private String m_uniprotAcc = null;
     private Date m_creationTime = null;
     private String m_ensemblAcc = null;
     private HashSet<String> m_anatomy = new HashSet<>();
-    private HashSet<String> m_compound = new HashSet<>();
+    private HashSet<String> m_glycans = new HashSet<>();
+    private List<Site> m_ptmSites = new ArrayList<Site>();
     private HashSet<String> m_disease = new HashSet<>();
     private String m_species = null;
 
@@ -53,16 +59,6 @@ public class Protein
         this.m_anatomy = a_anatomy;
     }
 
-    public HashSet<String> getCompound()
-    {
-        return this.m_compound;
-    }
-
-    public void setCompound(HashSet<String> a_compound)
-    {
-        this.m_compound = a_compound;
-    }
-
     public HashSet<String> getDisease()
     {
         return this.m_disease;
@@ -81,5 +77,25 @@ public class Protein
     public void setSpecies(String a_species)
     {
         this.m_species = a_species;
+    }
+
+    public HashSet<String> getGlycans()
+    {
+        return this.m_glycans;
+    }
+
+    public void setGlycans(HashSet<String> a_glycans)
+    {
+        this.m_glycans = a_glycans;
+    }
+
+    public List<Site> getPtmSites()
+    {
+        return this.m_ptmSites;
+    }
+
+    public void setPtmSites(List<Site> a_ptmSites)
+    {
+        this.m_ptmSites = a_ptmSites;
     }
 }

@@ -18,6 +18,10 @@ public class FileConfig
     private String m_glycanColumn = null;
     private String m_diseaseColumn = null;
     private String m_anatomyColumn = null;
+    private String m_sitePosOneColumn = null;
+    private String m_sitePosOneAAColumn = null;
+    private String m_sitePosTwoColumn = null;
+    private String m_sitePosTwoAAColumn = null;
     private String m_speciesColumn = null;
     private String m_accessUrl = null;
 
@@ -179,5 +183,45 @@ public class FileConfig
     public void setAccessUrl(String a_accessUrl)
     {
         this.m_accessUrl = a_accessUrl;
+    }
+
+    public String getSitePosOneColumn()
+    {
+        return this.m_sitePosOneColumn;
+    }
+
+    public void setSitePosOneColumn(String a_sitePosOne)
+    {
+        this.m_sitePosOneColumn = a_sitePosOne;
+    }
+
+    public String getSitePosOneAAColumn()
+    {
+        return this.m_sitePosOneAAColumn;
+    }
+
+    public void setSitePosOneAAColumn(String a_sitePosOneAA)
+    {
+        this.m_sitePosOneAAColumn = a_sitePosOneAA;
+    }
+
+    public String getSitePosTwoAAColumn()
+    {
+        return this.m_sitePosTwoAAColumn;
+    }
+
+    public void setSitePosTwoAAColumn(String a_sitePosTwoAA)
+    {
+        this.m_sitePosTwoAAColumn = a_sitePosTwoAA;
+    }
+
+    public String getSitePosTwoColumn()
+    {
+        return this.m_sitePosTwoColumn;
+    }
+
+    public void setSitePosTwoColumn(String a_sitePosTwo)
+    {
+        this.m_sitePosTwoColumn = a_sitePosTwo;
     }
 }

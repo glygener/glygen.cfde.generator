@@ -9,6 +9,7 @@ import org.glygen.cfde.generator.om.DCC;
 import org.glygen.cfde.generator.om.FileConfig;
 import org.glygen.cfde.generator.om.Namespace;
 import org.glygen.cfde.generator.om.Project;
+import org.glygen.cfde.generator.tsv.BioSamplePtmFile;
 import org.glygen.cfde.generator.tsv.BiosampleDiseaseFile;
 import org.glygen.cfde.generator.tsv.BiosampleFile;
 import org.glygen.cfde.generator.tsv.BiosampleFromSubjectFile;
@@ -25,9 +26,11 @@ import org.glygen.cfde.generator.tsv.CollectionGeneFile;
 import org.glygen.cfde.generator.tsv.CollectionInCollectionFile;
 import org.glygen.cfde.generator.tsv.CollectionPhenotypeFile;
 import org.glygen.cfde.generator.tsv.CollectionProteinFile;
+import org.glygen.cfde.generator.tsv.CollectionPtmFile;
 import org.glygen.cfde.generator.tsv.CollectionSubstanceFile;
 import org.glygen.cfde.generator.tsv.CollectionTaxonomyFile;
 import org.glygen.cfde.generator.tsv.DCCFile;
+import org.glygen.cfde.generator.tsv.DomainLocationFile;
 import org.glygen.cfde.generator.tsv.FileDescribesBiosampleFile;
 import org.glygen.cfde.generator.tsv.FileDescribesCollectionFile;
 import org.glygen.cfde.generator.tsv.FileDescribesSubjectFile;
@@ -36,6 +39,9 @@ import org.glygen.cfde.generator.tsv.FileInCollectionFile;
 import org.glygen.cfde.generator.tsv.IdNamespaceFile;
 import org.glygen.cfde.generator.tsv.ProjectFile;
 import org.glygen.cfde.generator.tsv.ProjectInProjectFile;
+import org.glygen.cfde.generator.tsv.PtmFile;
+import org.glygen.cfde.generator.tsv.PtmSubTypeFile;
+import org.glygen.cfde.generator.tsv.PtmTypeFile;
 import org.glygen.cfde.generator.tsv.SubjectDiseaseFile;
 import org.glygen.cfde.generator.tsv.SubjectFile;
 import org.glygen.cfde.generator.tsv.SubjectInCollectionFile;
@@ -71,6 +77,8 @@ public class TSVGenerator
     private ProjectFile m_projectFile = null;
     private ProjectInProjectFile m_projectInProjectFile = null;
     private IdNamespaceFile m_idNamespaceFile = null;
+    private PtmTypeFile m_ptmTypeFile = null;
+    private PtmSubTypeFile m_ptmSubTypeFile = null;
 
     // GlyGen files
     private FileFile m_fileFile = null;
@@ -83,6 +91,8 @@ public class TSVGenerator
     private CollectionProteinFile m_collectionProteinFile = null;
     private CollectionGeneFile m_collectionGeneFile = null;
     private CollectionTaxonomyFile m_collectionTaxonomyFile = null;
+    private PtmFile m_ptmFile = null;
+    private CollectionPtmFile m_collectionPtmFile = null;
 
     // unused files
     private BiosampleDiseaseFile m_bioSampleDiseaseFile = null;
@@ -104,7 +114,9 @@ public class TSVGenerator
     private SubjectRaceFile m_subjectRaceFile = null;
     private SubjectRoleTaxonomyFile m_subjectRoleTaxonomyFile = null;
     private SubjectSubstanceFile m_subjectSubstanceFile = null;
-    private CollectionInCollectionFile m_collectionInCollection = null;
+    private CollectionInCollectionFile m_collectionInCollectionFile = null;
+    private BioSamplePtmFile m_bioSamplePtmFile = null;
+    private DomainLocationFile m_domainLocationFile = null;
 
     public TSVGenerator(DCC a_dcc, Project a_projectMaster, Project a_projectGlyGen,
             Project a_projectArray, Namespace a_namespace)
@@ -136,6 +148,8 @@ public class TSVGenerator
         this.m_projectInProjectFile = new ProjectInProjectFile(a_outputFolder,
                 this.m_namespace.getId());
         this.m_idNamespaceFile = new IdNamespaceFile(a_outputFolder);
+        this.m_ptmTypeFile = new PtmTypeFile(a_outputFolder);
+        this.m_ptmSubTypeFile = new PtmSubTypeFile(a_outputFolder);
 
         // glygen
         this.m_fileFile = new FileFile(a_outputFolder, this.m_namespace.getId());
@@ -156,6 +170,9 @@ public class TSVGenerator
                 this.m_namespace.getId());
         this.m_collectionTaxonomyFile = new CollectionTaxonomyFile(a_outputFolder,
                 this.m_namespace.getId(), this.m_errorFile);
+        this.m_ptmFile = new PtmFile(a_outputFolder, this.m_namespace.getId(),
+                this.m_mappingFolder);
+        this.m_collectionPtmFile = new CollectionPtmFile(a_outputFolder, this.m_namespace.getId());
 
         // empty
         this.m_bioSampleDiseaseFile = new BiosampleDiseaseFile(a_outputFolder,
@@ -192,7 +209,10 @@ public class TSVGenerator
                 this.m_namespace.getId());
         this.m_subjectSubstanceFile = new SubjectSubstanceFile(a_outputFolder,
                 this.m_namespace.getId());
-        this.m_collectionInCollection = new CollectionInCollectionFile(a_outputFolder,
+        this.m_collectionInCollectionFile = new CollectionInCollectionFile(a_outputFolder,
+                this.m_namespace.getId());
+        this.m_bioSamplePtmFile = new BioSamplePtmFile(a_outputFolder, this.m_namespace.getId());
+        this.m_domainLocationFile = new DomainLocationFile(a_outputFolder,
                 this.m_namespace.getId());
     }
 
@@ -203,6 +223,8 @@ public class TSVGenerator
         this.m_projectFile.closeFile();
         this.m_projectInProjectFile.closeFile();
         this.m_idNamespaceFile.closeFile();
+        this.m_ptmTypeFile.closeFile();
+        this.m_ptmSubTypeFile.closeFile();
 
         // glygen
         this.m_fileFile.closeFile();
@@ -215,6 +237,8 @@ public class TSVGenerator
         this.m_collectionGeneFile.closeFile();
         this.m_collectionProteinFile.closeFile();
         this.m_collectionTaxonomyFile.closeFile();
+        this.m_collectionPtmFile.closeFile();
+        this.m_ptmFile.closeFile();
 
         // empty
         this.m_bioSampleDiseaseFile.closeFile();
@@ -236,7 +260,9 @@ public class TSVGenerator
         this.m_subjectRaceFile.closeFile();
         this.m_subjectRoleTaxonomyFile.closeFile();
         this.m_subjectSubstanceFile.closeFile();
-        this.m_collectionInCollection.closeFile();
+        this.m_collectionInCollectionFile.closeFile();
+        this.m_bioSamplePtmFile.closeFile();
+        this.m_domainLocationFile.closeFile();
         // error
         this.m_errorFile.closeFile();
     }
@@ -268,6 +294,33 @@ public class TSVGenerator
         // linking them
         this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectGlyGen);
         this.m_projectInProjectFile.write(this.m_projectMaster, this.m_projectArray);
+        // ptm types
+        this.m_ptmTypeFile.write("GO:0006486", "protein glycosylation",
+                "A protein modification process that results in the addition of a carbohydrate or carbohydrate derivative unit to a protein amino acid, e.g., the addition of glycan chains to proteins. protein phosphorylation – The process of introducing a phosphate group onto a protein.",
+                null);
+        this.m_ptmTypeFile.write("GO:0006468", "protein phosphorylation",
+                "The process of introducing a phosphate group on to a protein.", null);
+        // ptm sub types
+        this.m_ptmTypeFile.write("GO:0006487", "protein N-linked glycosylation",
+                "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via the N4 atom of peptidyl-asparagine, the omega-N of arginine, or the N1' atom peptidyl-tryptophan.",
+                null);
+        this.m_ptmTypeFile.write("GO:0006493", "protein O-linked glycosylation",
+                "A glycoprotein biosynthetic process starting with the covalent linkage of carbohydrate or carbohydrate derivative unit via a glycosidic bond to the oxygen atom of a serine, threonine, hydroxylysine, hydroxyproline or tyrosine side chain in a protein, which can be further elongated with the sequential addition of sugar units resulting in the formation of a protein O-linked glycan.",
+                null);
+        this.m_ptmTypeFile.write("GO:0018103", "protein C-linked glycosylation",
+                "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via a C atom.",
+                null);
+        this.m_ptmTypeFile.write("GO:0018280", "protein S-linked glycosylation",
+                "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via a sulfur atom of a peptidyl-amino-acid such as cysteine or methionine.",
+                null);
+        this.m_ptmTypeFile.write("GO:0018105", "peptidyl-serine phosphorylation",
+                "The phosphorylation of peptidyl-serine to form peptidyl-O-phospho-L-serine", null);
+        this.m_ptmTypeFile.write("GO:0018107", "peptidyl-threonine phosphorylation",
+                "The phosphorylation of peptidyl-threonine to form peptidyl-O-phospho-L-threonine.",
+                null);
+        this.m_ptmTypeFile.write("GO:0018108", "peptidyl-tyrosine phosphorylation",
+                "The phosphorylation of peptidyl-tyrosine to form peptidyl-O4'-phospho-L-tyrosine.",
+                null);
     }
 
     /**
@@ -385,6 +438,16 @@ public class TSVGenerator
     public String getMappingFolder()
     {
         return this.m_mappingFolder;
+    }
+
+    public PtmFile getPtmFile()
+    {
+        return this.m_ptmFile;
+    }
+
+    public CollectionPtmFile getCollectionPtmFile()
+    {
+        return this.m_collectionPtmFile;
     }
 
 }

@@ -12,9 +12,9 @@ import org.glygen.cfde.generator.om.PtmType;
 
 import com.opencsv.CSVReader;
 
-public class ProteinFileReader extends ProteinBasedFileReader
+public class ProteinPhosphoFileReader extends ProteinBasedFileReader
 {
-    public ProteinFileReader(Integer a_lineLimit)
+    public ProteinPhosphoFileReader(Integer a_lineLimit)
     {
         this.m_lineLimit = a_lineLimit;
     }
@@ -38,7 +38,7 @@ public class ProteinFileReader extends ProteinBasedFileReader
             if (this.m_handlerGene == null)
             {
                 t_csvReader.close();
-                throw new IOException("Protein type files need to have a Gene column.");
+                throw new IOException("Protein type file need to have a Gene column.");
             }
             // read data line by line
             while ((t_nextRecord = t_csvReader.readNext()) != null)
@@ -83,31 +83,8 @@ public class ProteinFileReader extends ProteinBasedFileReader
         {
             t_protein.setEnsemblAcc(t_gene);
         }
-        // glycosylation
-        if (this.m_handlerGlycan != null)
-        {
-            String t_glycan = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
-            if (t_glycan != null && t_glycan.trim().length() != 0)
-            {
-                // site with glycan
-                if (!this.m_filterGlycan.isIgnore(t_glycan))
-                {
-                    this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-                    this.addGlycan(t_protein, t_glycan);
-                }
-
-            }
-            else
-            {
-                // site without glycan
-                this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-            }
-        }
-        else if (this.m_handlerSiteOne != null && this.m_handlerSiteOneAA != null)
-        {
-            // site without glycan
-            this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-        }
+        // phosphorylation
+        this.addSite(a_row, a_rowCounter, t_protein, PtmType.PHOSPHORYLATION, a_errorLog);
     }
 
 }

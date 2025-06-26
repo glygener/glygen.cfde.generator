@@ -12,9 +12,9 @@ import org.glygen.cfde.generator.om.PtmType;
 
 import com.opencsv.CSVReader;
 
-public class ProteinFileReader extends ProteinBasedFileReader
+public class ProteinPhosphoNoGeneFileReader extends ProteinBasedFileReader
 {
-    public ProteinFileReader(Integer a_lineLimit)
+    public ProteinPhosphoNoGeneFileReader(Integer a_lineLimit)
     {
         this.m_lineLimit = a_lineLimit;
     }
@@ -23,7 +23,7 @@ public class ProteinFileReader extends ProteinBasedFileReader
             CSVError a_errorLog) throws IOException
     {
         Integer t_rowCounter = 1;
-        this.m_proteinMap = new HashMap<>();
+        this.m_proteinMap = new HashMap<String, Protein>();
         try
         {
             a_errorLog.setCurrentFile(a_config.getLocalId());
@@ -35,10 +35,12 @@ public class ProteinFileReader extends ProteinBasedFileReader
             String[] t_nextRecord = t_csvReader.readNext();
             // handle the columns
             this.createHandler(a_config, t_nextRecord, a_mappingFolder, a_errorLog);
-            if (this.m_handlerGene == null)
+            if (this.m_handlerGene != null)
             {
                 t_csvReader.close();
-                throw new IOException("Protein type files need to have a Gene column.");
+                throw new IOException(
+                        "Protein (No Gene) type files can not have a gene column definition: "
+                                + a_config.getFileUrl());
             }
             // read data line by line
             while ((t_nextRecord = t_csvReader.readNext()) != null)
@@ -73,41 +75,8 @@ public class ProteinFileReader extends ProteinBasedFileReader
     {
         Protein t_protein = this.getProteinObject(a_row, a_rowCounter, a_errorLog);
         this.addCommonProteinInformation(a_row, a_rowCounter, a_errorLog, t_protein);
-        // gene
-        String t_gene = this.m_handlerGene.processRow(a_row, a_rowCounter);
-        if (t_gene == null || t_gene.trim().length() == 0)
-        {
-            a_errorLog.writeWarning(a_rowCounter, "Gene value is empty");
-        }
-        else
-        {
-            t_protein.setEnsemblAcc(t_gene);
-        }
-        // glycosylation
-        if (this.m_handlerGlycan != null)
-        {
-            String t_glycan = this.m_handlerGlycan.processRow(a_row, a_rowCounter);
-            if (t_glycan != null && t_glycan.trim().length() != 0)
-            {
-                // site with glycan
-                if (!this.m_filterGlycan.isIgnore(t_glycan))
-                {
-                    this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-                    this.addGlycan(t_protein, t_glycan);
-                }
-
-            }
-            else
-            {
-                // site without glycan
-                this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-            }
-        }
-        else if (this.m_handlerSiteOne != null && this.m_handlerSiteOneAA != null)
-        {
-            // site without glycan
-            this.addSite(a_row, a_rowCounter, t_protein, PtmType.GLYCOSYLATION, a_errorLog);
-        }
+        // phosphorylation
+        this.addSite(a_row, a_rowCounter, t_protein, PtmType.PHOSPHORYLATION, a_errorLog);
     }
 
 }

@@ -135,11 +135,23 @@ public class ConfigFileParser
         // anatomy
         t_cellValue = this.getCell(a_row, 13);
         t_fileConfig.setAnatomyColumn(t_cellValue);
-        // species
+        // site_start_pos
         t_cellValue = this.getCell(a_row, 14);
-        t_fileConfig.setSpeciesColumn(t_cellValue);
-        // species
+        t_fileConfig.setSitePosOneColumn(t_cellValue);
+        // site_end_pos
         t_cellValue = this.getCell(a_row, 15);
+        t_fileConfig.setSitePosTwoColumn(t_cellValue);
+        // amino_acid_start
+        t_cellValue = this.getCell(a_row, 16);
+        t_fileConfig.setSitePosOneAAColumn(t_cellValue);
+        // amino_acid_end
+        t_cellValue = this.getCell(a_row, 17);
+        t_fileConfig.setSitePosTwoAAColumn(t_cellValue);
+        // species
+        t_cellValue = this.getCell(a_row, 18);
+        t_fileConfig.setSpeciesColumn(t_cellValue);
+        // access URL
+        t_cellValue = this.getCell(a_row, 19);
         t_fileConfig.setAccessUrl(t_cellValue);
         if (t_cellValue == null)
         {

@@ -93,7 +93,7 @@ public class App
                     t_arguments.isWriteGeneLess());
             t_generatorGlyGen.process(t_fileConfigs);
             CFDEGeneratorArray t_generatorArray = new CFDEGeneratorArray(t_generatorTSV);
-            t_generatorArray.process();
+            // TODO t_generatorArray.process();
             t_generatorTSV.closeFiles();
             // log all proteins and glycans into files (used for downloading
             // their JSON files)
