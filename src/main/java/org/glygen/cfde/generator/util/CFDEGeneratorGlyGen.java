@@ -65,7 +65,6 @@ public class CFDEGeneratorGlyGen
             }
             catch (Exception e)
             {
-                e.printStackTrace();
                 this.m_tsvGenerator.getErrorFile().writeError(t_fileConfig.getLocalId(), "",
                         e.getMessage(), "Skipped file");
             }

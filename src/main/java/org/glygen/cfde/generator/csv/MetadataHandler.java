@@ -82,7 +82,7 @@ public class MetadataHandler
         {
             // column based
             t_handler.setType(MetadataType.COLUMN);
-            String t_columnName = a_string.substring(7);
+            String t_columnName = a_string.substring(7).trim();
             Integer t_postion = MetadataHandler.findColumnPosition(t_columnName, a_heading);
             t_handler.setColumnName(t_columnName);
             t_handler.setPosition(t_postion);
