@@ -15,6 +15,7 @@ public abstract class ProteinBasedFileReader
 
     protected ProteinFilter m_filterProtein = new ProteinFilter();
     protected GlycanFilter m_filterGlycan = new GlycanFilter();
+    private AnatomyFilter m_filterAnatomy = new AnatomyFilter();
 
     protected Integer m_lineLimit = Integer.MAX_VALUE;
 
@@ -268,7 +269,10 @@ public abstract class ProteinBasedFileReader
             String t_anatomy = this.m_handlerAnatomy.processRow(a_row, a_rowCounter);
             if (t_anatomy != null && t_anatomy.trim().length() != 0)
             {
-                a_protein.getAnatomy().add(t_anatomy);
+                if (!this.m_filterAnatomy.isIgnore(t_anatomy.trim()))
+                {
+                    a_protein.getAnatomy().add(t_anatomy);
+                }
             }
         }
         // species

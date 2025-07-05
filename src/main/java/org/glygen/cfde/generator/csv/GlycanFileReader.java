@@ -16,6 +16,7 @@ public class GlycanFileReader
 {
     private GlycanFilter m_filterGlycan = new GlycanFilter();
     private ProteinFilter m_filterProtein = new ProteinFilter();
+    private AnatomyFilter m_filterAnatomy = new AnatomyFilter();
 
     private Integer m_lineLimit = Integer.MAX_VALUE;
 
@@ -158,7 +159,10 @@ public class GlycanFileReader
             String t_anatomy = this.m_handlerAnatomy.processRow(a_row, a_rowCounter);
             if (t_anatomy != null && t_anatomy.trim().length() != 0)
             {
-                t_glycan.getAnatomy().add(t_anatomy);
+                if (!this.m_filterAnatomy.isIgnore(t_anatomy.trim()))
+                {
+                    t_glycan.getAnatomy().add(t_anatomy);
+                }
             }
         }
         // species
@@ -191,7 +195,7 @@ public class GlycanFileReader
                 t_proteinObject = new Protein();
                 t_proteinObject.setUniprotAcc(t_protein);
                 t_proteinObject.setEnsemblAcc(t_gene);
-                if (this.m_filterProtein.isIgnore(t_protein))
+                if (!this.m_filterProtein.isIgnore(t_protein))
                 {
                     t_map.put(t_protein, t_proteinObject);
                 }
