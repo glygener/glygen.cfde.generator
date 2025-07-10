@@ -2,14 +2,16 @@ package org.glygen.cfde.generator.om;
 
 public enum PtmType
 {
-    GLYCOSYLATION("glycosylation"), PHOSPHORYLATION("phosphorylation");
+    GLYCOSYLATION("glycosylation", "glyco"), PHOSPHORYLATION("phosphorylation", "phospho");
 
     private String m_key;
+    private String m_short;
 
     /** Private constructor, see the forName methods for external use. */
-    private PtmType(String a_key)
+    private PtmType(String a_key, String a_short)
     {
         this.m_key = a_key;
+        this.m_short = a_short;
     }
 
     public String getKey()
@@ -30,6 +32,11 @@ public enum PtmType
             }
         }
         return null;
+    }
+
+    public String getShort()
+    {
+        return m_short;
     }
 
 }

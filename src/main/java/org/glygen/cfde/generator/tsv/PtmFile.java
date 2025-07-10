@@ -27,7 +27,7 @@ public class PtmFile extends TSVFile
                 PtmFile.AMINO_ACID_MAPPING_FILE);
     }
 
-    public void write(String a_localId, String a_protein, String a_siteOne, String a_siteOneAA,
+    public boolean write(String a_localId, String a_protein, String a_siteOne, String a_siteOneAA,
             String a_siteTwo, String a_siteTwoAA, String a_siteType, String a_ptmType,
             String a_ptmSubType, CSVError a_errorlog)
     {
@@ -40,7 +40,7 @@ public class PtmFile extends TSVFile
         {
             a_errorlog.writeError("Invalid AA found", "Protein " + a_protein
                     + " has invalid site one AA not found in mapping file: " + a_siteOneAA);
-            return;
+            return false;
         }
         t_line[3] = this.addString(t_aa);
         t_line[4] = this.addString(a_siteTwo);
@@ -49,7 +49,7 @@ public class PtmFile extends TSVFile
         {
             a_errorlog.writeError("Invalid AA found", "Protein " + a_protein
                     + " has invalid site two AA not found in mapping file: " + a_siteOneAA);
-            return;
+            return false;
         }
         t_line[5] = this.addString(t_aa);
         t_line[6] = this.addString(a_siteType);
@@ -58,6 +58,7 @@ public class PtmFile extends TSVFile
         t_line[9] = this.addString("");
         t_line[10] = this.addString("");
         this.m_csvWriter.writeNext(t_line);
+        return true;
     }
 
     private String getAA(String a_siteAA)

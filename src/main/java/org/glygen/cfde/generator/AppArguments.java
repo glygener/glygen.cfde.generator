@@ -7,6 +7,7 @@ public class AppArguments
     private String m_propertiesFile = null;
     private String m_mappingFolder = null;
     private boolean m_writeGeneLess = false;
+    private boolean m_excludeArray = false;
 
     public String getConfigFile()
     {
@@ -50,12 +51,22 @@ public class AppArguments
 
     public boolean isWriteGeneLess()
     {
-        return m_writeGeneLess;
+        return this.m_writeGeneLess;
     }
 
     public void setWriteGeneLess(boolean a_writeGeneLess)
     {
         this.m_writeGeneLess = a_writeGeneLess;
+    }
+
+    public boolean isExcludeArray()
+    {
+        return m_excludeArray;
+    }
+
+    public void setExcludeArray(boolean a_excludeArray)
+    {
+        this.m_excludeArray = a_excludeArray;
     }
 
 }

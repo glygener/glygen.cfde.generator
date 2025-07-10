@@ -93,7 +93,10 @@ public class App
                     t_arguments.isWriteGeneLess());
             t_generatorGlyGen.process(t_fileConfigs);
             CFDEGeneratorArray t_generatorArray = new CFDEGeneratorArray(t_generatorTSV);
-            t_generatorArray.process();
+            if (!t_arguments.isExcludeArray())
+            {
+                t_generatorArray.process();
+            }
             t_generatorTSV.closeFiles();
             // log all proteins and glycans into files (used for downloading
             // their JSON files)
@@ -242,6 +245,7 @@ public class App
         t_arguments.setPropertiesFile(t_commandLine.getOptionValue("p"));
         t_arguments.setMappingFolder(t_commandLine.getOptionValue("m"));
         t_arguments.setWriteGeneLess(t_commandLine.hasOption("g"));
+        t_arguments.setExcludeArray(t_commandLine.hasOption("x"));
         // check settings
         if (!App.checkArguments(t_arguments))
         {
@@ -393,6 +397,11 @@ public class App
         t_options.addOption(t_option);
         // writing geneless
         t_option = new Option("g", "geneless", false, "Write withoug gene information.");
+        t_option.setArgs(0);
+        t_option.setRequired(false);
+        t_options.addOption(t_option);
+        // exclude array
+        t_option = new Option("x", "exclude-array", false, "Do not include GlyGen array data.");
         t_option.setArgs(0);
         t_option.setRequired(false);
         t_options.addOption(t_option);

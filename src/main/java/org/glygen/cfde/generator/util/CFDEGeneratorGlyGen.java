@@ -38,13 +38,12 @@ public class CFDEGeneratorGlyGen
     private static final String SITE_TYPE_UNKNOWN = "unknown";
     private static final String SITE_TYPE_RANGE = "range";
 
-    private Integer m_ptmIdsAutoincrement = 1;
     private boolean m_writeGeneLess = true;
 
     private TSVGenerator m_tsvGenerator = null;
     private HashSet<String> m_proteinIDs = new HashSet<>();
     private HashMap<String, String> m_glycanIDs = new HashMap<>();
-    private HashMap<String, HashMap<Site, Integer>> m_ptmIds = new HashMap<String, HashMap<Site, Integer>>();
+    private HashMap<String, HashMap<Site, String>> m_ptmIds = new HashMap<String, HashMap<Site, String>>();
 
     public CFDEGeneratorGlyGen(TSVGenerator a_tsvGenerator, boolean a_writeGeneLess)
     {
@@ -424,15 +423,15 @@ public class CFDEGeneratorGlyGen
 
     private void writePTMs(Protein a_protein, String a_collectionID)
     {
-        HashMap<Site, Integer> t_proteinPtmIds = this.m_ptmIds.get(a_protein.getUniprotAcc());
+        HashMap<Site, String> t_proteinPtmIds = this.m_ptmIds.get(a_protein.getUniprotAcc());
         if (t_proteinPtmIds == null)
         {
-            t_proteinPtmIds = new HashMap<Site, Integer>();
+            t_proteinPtmIds = new HashMap<Site, String>();
             this.m_ptmIds.put(a_protein.getUniprotAcc(), t_proteinPtmIds);
         }
         for (Site t_site : a_protein.getPtmSites())
         {
-            Integer t_ptmId = t_proteinPtmIds.get(t_site);
+            String t_ptmId = t_proteinPtmIds.get(t_site);
             if (t_ptmId == null)
             {
                 // PTM does not exist yet
@@ -461,35 +460,41 @@ public class CFDEGeneratorGlyGen
                                     + a_protein.getUniprotAcc() + " site "
                                     + t_site.getPositionOneAA().toString());
                 }
+                String t_ptmUniqueString = this.createUniqueString(a_protein.getUniprotAcc(),
+                        t_site.getPositionOne(), t_site.getPositionOneAA(), t_site.getPositionTwo(),
+                        t_site.getPositionTwoAA(), t_siteType, t_ptmType, t_ptmSubType);
                 if (t_siteType.equals(CFDEGeneratorGlyGen.SITE_TYPE_DEFINED))
                 {
-                    this.m_tsvGenerator.getPtmFile().write(this.m_ptmIdsAutoincrement.toString(),
+                    if (this.m_tsvGenerator.getPtmFile().write(t_ptmUniqueString,
                             a_protein.getUniprotAcc(), t_site.getPositionOne().toString(),
                             t_site.getPositionOneAA(), "", "", t_siteType, t_ptmType, t_ptmSubType,
-                            this.m_tsvGenerator.getErrorFile());
-                    t_proteinPtmIds.put(t_site, this.m_ptmIdsAutoincrement);
-                    t_ptmId = this.m_ptmIdsAutoincrement;
-                    this.m_ptmIdsAutoincrement++;
+                            this.m_tsvGenerator.getErrorFile()))
+                    {
+                        t_proteinPtmIds.put(t_site, t_ptmUniqueString);
+                        t_ptmId = t_ptmUniqueString;
+                    }
                 }
                 else if (t_siteType.equals(CFDEGeneratorGlyGen.SITE_TYPE_UNKNOWN))
                 {
-                    this.m_tsvGenerator.getPtmFile().write(this.m_ptmIdsAutoincrement.toString(),
+                    if (this.m_tsvGenerator.getPtmFile().write(t_ptmUniqueString,
                             a_protein.getUniprotAcc(), "", "", "", "", t_siteType, t_ptmType,
-                            t_ptmSubType, this.m_tsvGenerator.getErrorFile());
-                    t_proteinPtmIds.put(t_site, this.m_ptmIdsAutoincrement);
-                    t_ptmId = this.m_ptmIdsAutoincrement;
-                    this.m_ptmIdsAutoincrement++;
+                            t_ptmSubType, this.m_tsvGenerator.getErrorFile()))
+                    {
+                        t_proteinPtmIds.put(t_site, t_ptmUniqueString);
+                        t_ptmId = t_ptmUniqueString;
+                    }
                 }
                 else if (t_siteType.equals(CFDEGeneratorGlyGen.SITE_TYPE_RANGE))
                 {
-                    this.m_tsvGenerator.getPtmFile().write(this.m_ptmIdsAutoincrement.toString(),
+                    if (this.m_tsvGenerator.getPtmFile().write(t_ptmUniqueString,
                             a_protein.getUniprotAcc(), t_site.getPositionOne().toString(),
                             t_site.getPositionOneAA(), t_site.getPositionTwo().toString(),
                             t_site.getPositionTwoAA(), t_siteType, t_ptmType, t_ptmSubType,
-                            this.m_tsvGenerator.getErrorFile());
-                    t_proteinPtmIds.put(t_site, this.m_ptmIdsAutoincrement);
-                    t_ptmId = this.m_ptmIdsAutoincrement;
-                    this.m_ptmIdsAutoincrement++;
+                            this.m_tsvGenerator.getErrorFile()))
+                    {
+                        t_proteinPtmIds.put(t_site, t_ptmUniqueString);
+                        t_ptmId = t_ptmUniqueString;
+                    }
                 }
             }
             if (t_ptmId != null)
@@ -498,6 +503,47 @@ public class CFDEGeneratorGlyGen
                         t_ptmId.toString());
             }
         }
+    }
+
+    private String createUniqueString(String a_uniprotAcc, Integer a_positionOne,
+            String a_positionOneAA, Integer a_positionTwo, String a_positionTwoAA,
+            String a_siteType, String a_ptmType, String a_ptmSubType)
+    {
+        StringBuffer t_compositeKey = new StringBuffer(a_uniprotAcc);
+        t_compositeKey.append("_");
+        if (a_positionOne != null)
+        {
+            t_compositeKey.append(a_positionOne);
+        }
+        if (a_positionOneAA != null)
+        {
+            t_compositeKey.append(a_positionOneAA);
+        }
+        t_compositeKey.append("_");
+        if (a_positionTwo != null)
+        {
+            t_compositeKey.append(a_positionTwo);
+        }
+        if (a_positionTwoAA != null)
+        {
+            t_compositeKey.append(a_positionTwoAA);
+        }
+        t_compositeKey.append("_");
+        if (a_siteType != null)
+        {
+            t_compositeKey.append(a_siteType);
+        }
+        t_compositeKey.append("_");
+        if (a_ptmType != null)
+        {
+            t_compositeKey.append(a_ptmType);
+        }
+        t_compositeKey.append("_");
+        if (a_ptmSubType != null)
+        {
+            t_compositeKey.append(a_ptmSubType);
+        }
+        return t_compositeKey.toString();
     }
 
     private String getPtmSubType(Site a_site, String a_siteType)
