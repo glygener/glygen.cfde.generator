@@ -477,7 +477,7 @@ public class CFDEGeneratorGlyGen
                 else if (t_siteType.equals(CFDEGeneratorGlyGen.SITE_TYPE_UNKNOWN))
                 {
                     if (this.m_tsvGenerator.getPtmFile().write(t_ptmUniqueString,
-                            a_protein.getUniprotAcc(), "", "", "", "", t_siteType, t_ptmType,
+                            a_protein.getUniprotAcc(), "-1", "X", "", "", t_siteType, t_ptmType,
                             t_ptmSubType, this.m_tsvGenerator.getErrorFile()))
                     {
                         t_proteinPtmIds.put(t_site, t_ptmUniqueString);
@@ -543,7 +543,7 @@ public class CFDEGeneratorGlyGen
         {
             t_compositeKey.append(a_ptmSubType);
         }
-        return t_compositeKey.toString();
+        return t_compositeKey.toString().toLowerCase();
     }
 
     private String getPtmSubType(Site a_site, String a_siteType)
