@@ -35,14 +35,22 @@ public class PtmFile extends TSVFile
         t_line[0] = this.addString(a_localId);
         t_line[1] = this.addString(a_protein);
         t_line[2] = this.addString(a_siteOne);
-        String t_aa = this.getAA(a_siteOneAA);
-        if (t_aa == null)
+        String t_aa = null;
+        if (a_siteOneAA.equals("X"))
         {
-            a_errorlog.writeError("Invalid AA found", "Protein " + a_protein
-                    + " has invalid site one AA not found in mapping file: " + a_siteOneAA);
-            return false;
+            t_line[3] = this.addString("X");
         }
-        t_line[3] = this.addString(t_aa);
+        else
+        {
+            t_aa = this.getAA(a_siteOneAA);
+            if (t_aa == null)
+            {
+                a_errorlog.writeError("Invalid AA found", "Protein " + a_protein
+                        + " has invalid site one AA not found in mapping file: " + a_siteOneAA);
+                return false;
+            }
+            t_line[3] = this.addString(t_aa);
+        }
         t_line[4] = this.addString(a_siteTwo);
         t_aa = this.getAA(a_siteTwoAA);
         if (t_aa == null)
