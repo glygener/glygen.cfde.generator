@@ -467,7 +467,8 @@ public class CFDEGeneratorGlyGen
                 {
                     if (this.m_tsvGenerator.getPtmFile().write(t_ptmUniqueString,
                             a_protein.getUniprotAcc(), t_site.getPositionOne().toString(),
-                            t_site.getPositionOneAA(), "", "", t_siteType, t_ptmType, t_ptmSubType,
+                            t_site.getPositionOneAA(), t_site.getPositionOne().toString(),
+                            t_site.getPositionOneAA(), t_siteType, t_ptmType, t_ptmSubType,
                             this.m_tsvGenerator.getErrorFile()))
                     {
                         t_proteinPtmIds.put(t_site, t_ptmUniqueString);
@@ -558,15 +559,15 @@ public class CFDEGeneratorGlyGen
                 }
                 if (a_site.getPositionOneAA().equals("Ser"))
                 {
-                    return "GO:000649";
+                    return "GO:0006493";
                 }
                 if (a_site.getPositionOneAA().equals("Thr"))
                 {
-                    return "GO:000649";
+                    return "GO:0006493";
                 }
                 if (a_site.getPositionOneAA().equals("Tyr"))
                 {
-                    return "GO:000649";
+                    return "GO:0006493";
                 }
                 if (a_site.getPositionOneAA().equals("Trp"))
                 {

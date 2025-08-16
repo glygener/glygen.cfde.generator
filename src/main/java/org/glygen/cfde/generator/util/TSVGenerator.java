@@ -301,24 +301,24 @@ public class TSVGenerator
         this.m_ptmTypeFile.write("GO:0006468", "protein phosphorylation",
                 "The process of introducing a phosphate group on to a protein.", null);
         // ptm sub types
-        this.m_ptmTypeFile.write("GO:0006487", "protein N-linked glycosylation",
+        this.m_ptmSubTypeFile.write("GO:0006487", "protein N-linked glycosylation",
                 "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via the N4 atom of peptidyl-asparagine, the omega-N of arginine, or the N1' atom peptidyl-tryptophan.",
                 null);
-        this.m_ptmTypeFile.write("GO:0006493", "protein O-linked glycosylation",
+        this.m_ptmSubTypeFile.write("GO:0006493", "protein O-linked glycosylation",
                 "A glycoprotein biosynthetic process starting with the covalent linkage of carbohydrate or carbohydrate derivative unit via a glycosidic bond to the oxygen atom of a serine, threonine, hydroxylysine, hydroxyproline or tyrosine side chain in a protein, which can be further elongated with the sequential addition of sugar units resulting in the formation of a protein O-linked glycan.",
                 null);
-        this.m_ptmTypeFile.write("GO:0018103", "protein C-linked glycosylation",
+        this.m_ptmSubTypeFile.write("GO:0018103", "protein C-linked glycosylation",
                 "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via a C atom.",
                 null);
-        this.m_ptmTypeFile.write("GO:0018280", "protein S-linked glycosylation",
+        this.m_ptmSubTypeFile.write("GO:0018280", "protein S-linked glycosylation",
                 "A protein glycosylation process in which a carbohydrate or carbohydrate derivative unit is added to a protein via a sulfur atom of a peptidyl-amino-acid such as cysteine or methionine.",
                 null);
-        this.m_ptmTypeFile.write("GO:0018105", "peptidyl-serine phosphorylation",
+        this.m_ptmSubTypeFile.write("GO:0018105", "peptidyl-serine phosphorylation",
                 "The phosphorylation of peptidyl-serine to form peptidyl-O-phospho-L-serine", null);
-        this.m_ptmTypeFile.write("GO:0018107", "peptidyl-threonine phosphorylation",
+        this.m_ptmSubTypeFile.write("GO:0018107", "peptidyl-threonine phosphorylation",
                 "The phosphorylation of peptidyl-threonine to form peptidyl-O-phospho-L-threonine.",
                 null);
-        this.m_ptmTypeFile.write("GO:0018108", "peptidyl-tyrosine phosphorylation",
+        this.m_ptmSubTypeFile.write("GO:0018108", "peptidyl-tyrosine phosphorylation",
                 "The phosphorylation of peptidyl-tyrosine to form peptidyl-O4'-phospho-L-tyrosine.",
                 null);
     }
