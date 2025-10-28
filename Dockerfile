@@ -13,4 +13,4 @@ RUN mkdir -p libs
 RUN mkdir -p data
 COPY --from=build /app/target/*.jar libs/
 COPY --from=build /app/target/libs/*.jar libs/
-CMD ["java", "-cp", "/app/libs/*", "org.glygen.cfde.generator.App"]
+CMD ["java", "-cp", "/app/libs/*", "org.glygen.cfde.generator.App", "-c", "/app/data/files.csv", "-o", "/app/data/output/", "-p", "/app/data/glygen.properties", "-m", "/app/data/mapping/" "-g"]
