@@ -7,7 +7,7 @@ RUN mvn clean package -DskipTests
 RUN mvn dependency:copy-dependencies -DoutputDirectory=./target/libs/
 
 # Stage 2: Create the final runtime image
-FROM openjdk:21
+FROM eclipse-temurin:25
 WORKDIR /app
 RUN mkdir -p libs
 RUN mkdir -p data
