@@ -1,7 +1,3 @@
-
-ARG IMAGE_VERSION
-ARG IMAGE_CREATED
-
 ##########################################
 # Stage 1: Build the application
 ##########################################
@@ -18,6 +14,8 @@ RUN mvn dependency:copy-dependencies -DoutputDirectory=./target/libs/
 # Stage 2: Create the final runtime image
 ##########################################
 FROM eclipse-temurin:25
+ARG IMAGE_VERSION
+ARG IMAGE_CREATED
 # metadata
 LABEL org.opencontainers.image.authors="Rene Ranzinger, Complex Carbohydrate Research Center, University of Georgia" \
       org.opencontainers.image.title="GlyGen C2M2 Metadata Generator" \
@@ -35,7 +33,8 @@ RUN mkdir -p data
 COPY --from=build /app/target/*.jar libs/
 COPY --from=build /app/target/libs/*.jar libs/
 # create non-root user, assign file to the user and switch to this user
-RUN adduser -D glygen && chown -R glygen /app
+RUN useradd glygen 
+RUN chown -R glygen /app
 USER glygen
 # run the application
 CMD ["java", "-cp", "/app/libs/*", "org.glygen.cfde.generator.App", "-c", "/app/data/files.csv", "-o", "/app/data/output/", "-p", "/app/data/glygen.properties", "-m", "/app/data/mapping/" "-g"]
